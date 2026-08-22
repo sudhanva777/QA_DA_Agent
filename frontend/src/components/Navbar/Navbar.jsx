@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Database, Settings as SettingsIcon, LayoutDashboard, CheckCircle2, AlertCircle, Menu, Sparkles, LogOut, User, ChevronDown } from 'lucide-react';
+import { Database, Settings as SettingsIcon, LayoutDashboard, CheckCircle2, AlertCircle, Menu, Sparkles, LogOut, User, ChevronDown, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Navbar({ activeDataset, isConnected, onToggleMobileSidebar }) {
@@ -8,6 +8,7 @@ export default function Navbar({ activeDataset, isConnected, onToggleMobileSideb
   const navigate = useNavigate();
   const { user, logout, isAuthenticated } = useAuth();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const userMenuRef = useRef(null);
 
   useEffect(() => {
@@ -20,9 +21,15 @@ export default function Navbar({ activeDataset, isConnected, onToggleMobileSideb
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login', { replace: true });
+  const handleLogout = async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    try {
+      await logout();
+    } finally {
+      setIsLoggingOut(false);
+      navigate('/login', { replace: true });
+    }
   };
 
   return (
@@ -148,10 +155,20 @@ export default function Navbar({ activeDataset, isConnected, onToggleMobileSideb
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+                  disabled={isLoggingOut}
+                  className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <LogOut className="w-4 h-4" aria-hidden="true" />
-                  <span>Sign Out</span>
+                  {isLoggingOut ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+                      <span>Signing out...</span>
+                    </>
+                  ) : (
+                    <>
+                      <LogOut className="w-4 h-4" aria-hidden="true" />
+                      <span>Sign Out</span>
+                    </>
+                  )}
                 </button>
               </div>
             )}

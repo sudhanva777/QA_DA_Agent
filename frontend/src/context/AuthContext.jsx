@@ -60,11 +60,15 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
-    setUser(null);
-    setIsAuthenticated(false);
-    api.setAuthToken(null);
+  const logout = useCallback(async () => {
+    try {
+      await api.logout();
+    } finally {
+      localStorage.removeItem(STORAGE_KEY);
+      setUser(null);
+      setIsAuthenticated(false);
+      api.setAuthToken(null);
+    }
   }, []);
 
   const updateUser = useCallback((updates) => {

@@ -48,7 +48,11 @@ export default function MessageCard({ message }) {
   ];
 
   return (
-    <div className="flex justify-start my-5 w-full">
+    <div 
+      className="flex justify-start my-5 w-full" 
+      data-message-card
+      data-message={JSON.stringify(message).replace(/"/g, '"')}
+    >
       <div className="flex items-start space-x-3 w-full max-w-4xl">
         <div className="w-9 h-9 rounded-lg bg-blue-500 text-white flex items-center justify-center shadow-xs shrink-0 mt-1">
           <Bot className="w-5 h-5" aria-hidden="true" />

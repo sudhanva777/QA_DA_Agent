@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Download, Maximize2, BarChart3, Image as ImageIcon } from 'lucide-react';
+import { Download, Maximize2, BarChart3, Image as ImageIcon, FileText } from 'lucide-react';
+import api from '../../services/api';
+import toast from 'react-hot-toast';
 import {
   ResponsiveContainer,
   BarChart,
@@ -192,6 +194,33 @@ export default function ChartViewer({ chartUrl, tableData, chartData, title = 'G
     }
   };
 
+  const handleExportPdf = async () => {
+    const messageCard = document.querySelector('[data-message-card]');
+    if (!messageCard) return;
+
+    const messageData = messageCard.__reactProps$?.message;
+    if (!messageData) return;
+
+    try {
+      const blob = await api.exportPdf(messageData, messageData.datasetId);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const datasetName = messageData.datasetId || 'analysis';
+      const safeName = datasetName.replace(/[^a-zA-Z0-9\-_]/g, '_');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      link.download = `analysis_report_${safeName}_${timestamp}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      toast.success('PDF report downloaded!');
+    } catch (error) {
+      const errorMsg = error.response?.data?.detail || error.response?.data?.error || 'Failed to export PDF';
+      toast.error(errorMsg);
+    }
+  };
+
   if (!fullChartUrl && !rechartsData) {
     return (
       <div className="p-8 text-center bg-gray-50 border border-gray-200 rounded-lg text-gray-500 text-xs md:text-sm">
@@ -330,6 +359,17 @@ export default function ChartViewer({ chartUrl, tableData, chartData, title = 'G
             >
               <Download className="w-3.5 h-3.5 mr-1.5" aria-hidden="true" />
               Download PNG
+            </button>
+          )}
+
+          {fullChartUrl && (
+            <button
+              onClick={handleExportPdf}
+              aria-label="Export analysis as PDF report"
+              className="inline-flex items-center px-3 py-1.5 text-xs md:text-sm font-medium bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-md shadow-2xs transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <FileText className="w-3.5 h-3.5 mr-1.5" aria-hidden="true" />
+              Export PDF
             </button>
           )}
 

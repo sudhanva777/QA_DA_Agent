@@ -338,3 +338,100 @@ alembic current
 alembic downgrade base
 alembic upgrade head
 ```
+
+## PDF Export Endpoint
+
+### Overview
+
+The API provides a PDF export endpoint for generating downloadable analysis reports:
+
+```
+POST /api/export/pdf
+```
+
+### Authentication
+
+Requires valid JWT token via `Authorization: Bearer <token>` header. Uses the existing `get_current_user` dependency.
+
+### Request Body
+
+```json
+{
+  "analysis_result": {
+    "dataset_id": "sales_data.csv",
+    "question": "What are total sales by region?",
+    "answer": "North: $2.4M | South: $1.8M | East: $3.1M | West: $2.7M",
+    "explanation": "The data shows sales totals grouped by region.",
+    "table": {
+      "columns": ["region", "total_sales"],
+      "rows": [{"region": "North", "total_sales": 2400000}, ...],
+      "shape": [4, 2]
+    },
+    "chart_url": "/outputs/chart_abc123.png",
+    "chart_data": {...},
+    "generated_code": "result = df.groupby('region')['sales'].sum()",
+    "analysis_plan": {"step1": "Group by region", ...},
+    "latency_ms": 127.45,
+    "timestamp": 1724352000.123
+  },
+  "dataset_name": "sales_data.csv"
+}
+```
+
+- `analysis_result` (required): The full analysis result object from `POST /api/query`
+- `dataset_name` (optional): Used for generating the PDF filename
+
+### Response
+
+- **Content-Type**: `application/pdf`
+- **Content-Disposition**: `attachment; filename="analysis_report_<dataset>_<timestamp>.pdf"`
+- **Body**: Binary PDF stream
+
+### PDF Contents
+
+1. **Report Title**: "AI Data Analysis Report"
+2. **Dataset Information**: Dataset ID, generation timestamp, analysis latency
+3. **User Question**: The original natural language question
+4. **AI Answer**: The final computed answer
+5. **Explanation**: Detailed explanation from the analysis pipeline
+6. **Result Table**: Formatted table with columns, rows, pagination for large tables
+7. **Chart**: Embedded PNG chart (if available from `/outputs/`)
+8. **Generated Python Code**: The executed pandas code in monospaced format
+9. **Analysis Plan**: Structured analysis steps (if available)
+10. **Metadata**: Generation timestamp, dataset ID, latency
+
+### Chart Embedding
+
+- Charts are resolved from `chart_url` to files in the `outputs/` directory
+- Path traversal is prevented by restricting to `outputs/` subdirectory
+- If chart is missing, PDF continues with "Chart unavailable" notice
+- Only `.png`, `.jpg`, `.jpeg` files are accepted
+
+### Temporary File Management
+
+- PDFs are generated to a temporary file using `tempfile.NamedTemporaryFile`
+- Files are streamed to client and deleted immediately after streaming
+- No permanent PDF files are stored on disk
+
+### Dependencies
+
+- `reportlab>=4.0.0` (added to `requirements.txt`)
+
+### Security
+
+- Authentication required via JWT
+- Chart path validation prevents directory traversal
+- Text content sanitized for PDF injection prevention
+- No secrets logged or embedded in PDF
+
+### Example Usage (Frontend)
+
+```javascript
+const blob = await api.exportPdf(analysisResult, datasetName);
+const url = window.URL.createObjectURL(blob);
+const link = document.createElement('a');
+link.href = url;
+link.download = `analysis_report_${datasetName}_${timestamp}.pdf`;
+link.click();
+window.URL.revokeObjectURL(url);
+```

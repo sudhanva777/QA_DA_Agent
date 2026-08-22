@@ -7,7 +7,7 @@ from typing import List, Optional
 from fastapi import FastAPI, File, UploadFile, HTTPException, Query, Request, Response, Depends
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -26,10 +26,13 @@ from src.analysis_service import (
     list_datasets,
     upload_dataset_file,
 )
+from src.auth.dependencies import get_current_user
 from src.auth.routes import router as auth_router
 from src.dataset_summary import build_rich_dataset_summary
 from src.data_loader import load_dataset
 from src.db.postgresql import init_db as init_postgres_db
+from src.schemas.pdf_export import PDFExportRequest
+from src.services.pdf_generator import generate_analysis_pdf
 
 # Create required directories
 os.makedirs("data", exist_ok=True)
@@ -346,6 +349,35 @@ def clean_dataset_api(body: CleanRequest):
 @app.get("/api/summary/{dataset_id}")
 def get_summary_api(dataset_id: str):
     return get_summary(dataset_id)
+
+
+# PDF Export endpoint
+@app.post("/api/export/pdf")
+async def export_pdf(request: PDFExportRequest, current_user=Depends(get_current_user)):
+    try:
+        pdf_path = generate_analysis_pdf(request.analysis_result)
+        dataset_name = request.dataset_name or request.analysis_result.get("dataset_id", "analysis")
+        safe_name = "".join(c for c in dataset_name if c.isalnum() or c in (" ", "-", "_")).strip()
+        safe_name = safe_name.replace(" ", "_")[:50]
+        timestamp = int(time.time())
+        filename = f"analysis_report_{safe_name}_{timestamp}.pdf"
+
+        def iterfile():
+            with open(pdf_path, "rb") as f:
+                yield from f
+            try:
+                os.unlink(pdf_path)
+            except Exception:
+                pass
+
+        return StreamingResponse(
+            iterfile(),
+            media_type="application/pdf",
+            headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        )
+    except Exception as exc:
+        logging.exception("PDF generation failed: %s", exc)
+        raise HTTPException(status_code=500, detail="PDF generation failed") from exc
 
 
 # Auth /api/* compatibility aliases

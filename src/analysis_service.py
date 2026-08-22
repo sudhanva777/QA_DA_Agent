@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 import pandas as pd
 
-from src import agent, db
+from src import agent, sqlite_logging as db
 from src.cache_store import get_cached, make_dataset_cache_key, set_cached
 from src.data_loader import load_dataset
 from src.dataset_summary import build_rich_dataset_summary

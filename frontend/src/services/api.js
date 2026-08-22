@@ -155,6 +155,17 @@ export const api = {
     const response = await apiClient.get(`/api/summary/${encodeURIComponent(datasetId)}`);
     return response.data;
   },
+
+  // Export analysis result as PDF
+  exportPdf: async (analysisResult, datasetName) => {
+    const response = await apiClient.post('/api/export/pdf', {
+      analysis_result: analysisResult,
+      dataset_name: datasetName,
+    }, {
+      responseType: 'blob',
+    });
+    return response.data;
+  },
 };
 
 export default api;

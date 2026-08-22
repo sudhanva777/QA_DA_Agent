@@ -41,6 +41,17 @@ Then open:
 - Questions are sent to `/api/query`, and the response includes answer text, table data, chart URL, generated code, and latency.
 - History items can replay prior questions while preserving the current dataset if the original dataset is unavailable.
 - The app renders charts from backend-served `/outputs` image URLs when available.
+- Analysis results can be exported as PDF reports via the "Export PDF" button in the Chart tab.
+
+## PDF Export
+
+- **Endpoint**: `POST /api/export/pdf` (requires JWT authentication)
+- **Request**: `{ analysis_result: <result_object>, dataset_name?: string }`
+- **Response**: `application/pdf` stream with `Content-Disposition: attachment`
+- **Filename**: `analysis_report_<dataset_name>_<timestamp>.pdf`
+- **PDF Contents**: Report title, dataset info, question, answer, explanation, result table, chart (if available), generated Python code, analysis plan, metadata
+- **Chart Embedding**: Backend-generated PNG charts from `/outputs/` are embedded directly into the PDF
+- **Location**: "Export PDF" button in the Chart tab of each assistant message
 
 ## Design Notes
 
