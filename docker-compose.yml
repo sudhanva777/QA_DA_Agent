@@ -5,6 +5,9 @@
 #   backend  — FastAPI + Uvicorn (port 8000)
 #   frontend — React SPA + Nginx reverse proxy (port 3000)
 # ===================================================================
+# For local development: docker compose up --build
+# For Render: Each service deployed separately as Web Services
+# ===================================================================
 
 services:
   backend:
@@ -17,11 +20,14 @@ services:
     env_file:
       - .env
     environment:
-      # Allow frontend container origin for CORS
+      # Allow frontend container origin for CORS (local development)
       - ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://localhost:5174
       # Database URL for Neon PostgreSQL (loaded from .env via env_file)
       - DATABASE_URL=${DATABASE_URL}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GROQ_MODEL=${GROQ_MODEL:-openai/gpt-oss-120b}
+      - ENABLE_OPENAPI_DOCS=true
     volumes:
       # Persist uploaded datasets across container restarts
       - qa_data:/app/data

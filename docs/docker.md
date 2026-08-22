@@ -149,6 +149,8 @@ docker compose restart backend
 | Variable              | Required | Default                | Description                              |
 |-----------------------|----------|------------------------|------------------------------------------|
 | `GROQ_API_KEY`        | **Yes**  | —                      | API key for Groq LLM inference           |
+| `DATABASE_URL`        | **Yes**  | —                      | Neon PostgreSQL connection string        |
+| `JWT_SECRET_KEY`      | **Yes**  | —                      | Secret for JWT token signing             |
 | `GROQ_MODEL`          | No       | `openai/gpt-oss-120b`  | LLM model identifier                     |
 | `ALLOWED_ORIGINS`     | No       | `localhost:3000,5173`   | CORS allowed origins (comma-separated)   |
 | `ENABLE_OPENAPI_DOCS` | No       | `true`                 | Enable /docs and /redoc endpoints        |
@@ -203,22 +205,95 @@ The frontend service waits for the backend to become healthy before starting (`d
 ## Production Considerations
 
 ### Scaling
+
 - For production, consider placing an external reverse proxy (e.g., Caddy, Traefik) in front for TLS termination
 - The backend is single-process Uvicorn; for higher throughput, use `--workers N` or Gunicorn with Uvicorn workers
 
 ### Database
-- SQLite is used for logging only — suitable for single-instance deployments
-- For multi-instance production, consider migrating to PostgreSQL
+
+- **SQLite**: Used for logging only — suitable for single-instance deployments
+- **Neon PostgreSQL**: Used for user authentication (users table). This is the production database.
+- For multi-instance production, the SQLite logging should be replaced with a centralized logging solution.
 
 ### File Storage
-- Uploaded datasets are stored on the local filesystem (Docker volume)
+
+- **Uploaded datasets**: Stored on local filesystem (Docker volume `qa_data`)
+- **Generated charts**: Stored in `outputs/` (Docker volume `qa_outputs`)
+- **PDF reports**: Generated on-demand and streamed to client (not stored)
 - For production, consider object storage (S3, GCS) for uploaded files
 
 ### Security
+
 - The backend runs as a non-root user (`appuser`)
 - No secrets are baked into Docker images
 - `.env` is excluded from both `.gitignore` and `.dockerignore`
 - The Nginx proxy limits upload size to 50MB (matching backend)
+
+---
+
+## Render Deployment
+
+### Prerequisites
+
+1. A [Render](https://render.com/) account
+2. A [Neon](https://neon.tech/) PostgreSQL database
+3. A [Groq](https://console.groq.com/) API key
+
+### Backend Service (Web Service)
+
+1. Create a new **Web Service** in Render
+2. Connect your GitHub/GitLab repository
+4. Configure:
+   - **Runtime**: Docker
+   - **Dockerfile Path**: `./Dockerfile`
+   - **Docker Context**: `.`
+5. Add Environment Variables in Render Dashboard:
+   - `GROQ_API_KEY`: Your Groq API key
+   - `DATABASE_URL`: Neon PostgreSQL connection string (e.g., `postgresql://user:pass@ep-xxx.neon.tech/db?sslmode=require`)
+   - `JWT_SECRET_KEY`: Generated secret (run `python -c "import secrets; print(secrets.token_urlsafe(32))"`)
+   - `GROQ_MODEL`: `openai/gpt-oss-120b` (or your preferred model)
+   - `ALLOWED_ORIGINS`: `https://your-frontend-domain.onrender.com`
+   - `ENABLE_OPENAPI_DOCS`: `true`
+6. Health Check Path: `/health`
+7. Deploy!
+
+The backend will be available at `https://your-api-name.onrender.com`
+
+### Frontend Service (Static Site)
+
+1. Create a new **Static Site** in Render
+2. Connect the same repository
+3. Configure:
+   - **Build Command**: `cd frontend && npm ci && npm run build`
+   - **Publish Directory**: `frontend/dist`
+4. Add Environment Variable:
+   - `VITE_API_BASE_URL`: `https://your-api-name.onrender.com`
+5. Deploy!
+
+The frontend will be available at `https://your-frontend-name.onrender.com`
+
+### Alternative: Frontend as Web Service (Docker)
+
+If you prefer Docker for the frontend:
+
+1. Create a new **Web Service**
+2. **Runtime**: Docker
+3. **Dockerfile Path**: `./frontend/Dockerfile`
+4. **Docker Context**: `./frontend`
+5. Environment Variable:
+   - `VITE_API_BASE_URL`: `https://your-api-name.onrender.com`
+6. Health Check Path: `/`
+
+### Neon PostgreSQL Setup
+
+1. Create a Neon project at [neon.tech](https://neon.tech)
+2. Create a database (e.g., `qa_analysis`)
+3. Copy the connection string (pooled connection recommended)
+4. Add to Render as `DATABASE_URL`
+5. Run migrations locally or via Render shell:
+   ```bash
+   alembic upgrade head
+   ```
 
 ---
 
@@ -277,3 +352,33 @@ docker compose build --no-cache
 docker compose down -v
 docker compose up -d
 ```
+
+---
+
+## Development vs Production
+
+| Aspect | Development (Docker Compose) | Production (Render) |
+|--------|-----------------------------|---------------------|
+| Frontend | Nginx + Reverse Proxy | Static Site or Docker Web Service |
+| Backend | Docker Container | Docker Web Service |
+| Database | Neon (external) | Neon (external) |
+| Auth DB | Neon PostgreSQL | Neon PostgreSQL |
+| Logging | SQLite (logs/) | SQLite (ephemeral) |
+| File Storage | Docker Volumes | Ephemeral (consider S3) |
+| TLS | None (HTTP) | Automatic (HTTPS) |
+| CORS | localhost origins | Production domain |
+
+---
+
+## Security Checklist
+
+- [ ] `GROQ_API_KEY` never committed to Git
+- [ ] `DATABASE_URL` never committed to Git
+- [ ] `JWT_SECRET_KEY` never committed to Git
+- [ ] `.env` in `.gitignore` and `.dockerignore`
+- [ ] No hardcoded secrets in Dockerfile or docker-compose.yml
+- [ ] Backend runs as non-root user (`appuser`)
+- [ ] Nginx upload limit matches backend (50MB)
+- [ ] CORS configured with specific origins (not `*`)
+- [ ] JWT tokens use secure signing (HS256)
+- [ ] Passwords hashed with bcrypt (never stored in plaintext)

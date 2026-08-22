@@ -3,7 +3,7 @@
 # ===================================================================
 # Python FastAPI backend with Uvicorn
 # Entry point: api.py → app = FastAPI(...)
-# Port: 8000
+# Port: 8000 (configurable via PORT env var for Render)
 # ===================================================================
 
 FROM python:3.12-slim AS backend
@@ -12,9 +12,18 @@ FROM python:3.12-slim AS backend
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Install curl for health check (minimal addition)
+# Install system dependencies for Python packages
+# matplotlib: libpng, freetype, pkg-config
+# pandas/numpy: may need build tools for some wheels
+# reportlab: usually pure Python but may need libjpeg for images
+# psycopg2-binary: pre-compiled, no system deps needed
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl && \
+    apt-get install -y --no-install-recommends \
+    libpng-dev \
+    libfreetype6-dev \
+    pkg-config \
+    libjpeg-dev \
+    curl && \
     rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
@@ -42,12 +51,13 @@ RUN mkdir -p outputs logs/cache && \
 # Switch to non-root user
 USER appuser
 
-# Expose the backend API port
+# Expose the backend API port (configurable via PORT env var)
 EXPOSE 8000
 
 # Health check against the /health endpoint
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Start FastAPI via Uvicorn (derived from run.bat line 75)
-CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
+# Start FastAPI via Uvicorn
+# Use PORT environment variable if set (for Render), otherwise default to 8000
+CMD ["sh", "-c", "uvicorn api:app --host 0.0.0.0 --port ${PORT:-8000}"]

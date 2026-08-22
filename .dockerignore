@@ -5,6 +5,7 @@
 # ── Secrets ──
 .env
 .env.local
+.env.*.local
 
 # ── Python Virtual Environment ──
 venv/
@@ -15,15 +16,23 @@ __pycache__/
 *.pyc
 *.pyo
 .pytest_cache/
+*.egg-info/
 
 # ── Frontend (handled by frontend/Dockerfile separately) ──
 frontend/node_modules/
 frontend/dist/
 frontend/dist-ssr/
+frontend/.vite/
 
 # ── Runtime Outputs (regenerated at runtime) ──
 outputs/*.png
+outputs/*.pdf
+!outputs/.gitkeep
 logs/
+!logs/.gitkeep
+logs/*.db
+!logs/.gitkeep
+logs/cache/
 
 # ── IDE & OS ──
 .DS_Store
@@ -43,10 +52,22 @@ README.md
 
 # ── Tests (not needed in production image) ──
 tests/
-
-# ── Windows scripts ──
-run.bat
+*.cover
+.coverage
 
 # ── Docker files (avoid recursive context) ──
 docker-compose.yml
 frontend/Dockerfile
+
+# ── Windows scripts ──
+run.bat
+
+# ── Alembic (migrations handled separately) ──
+alembic/
+alembic.ini
+
+# ── Misc ──
+*.log
+*.pot
+*.pyc
+*.pyo
