@@ -4,14 +4,14 @@ import time
 import traceback
 from typing import List, Optional
 
-from fastapi import FastAPI, File, UploadFile, HTTPException, Query, Request
+from fastapi import FastAPI, File, UploadFile, HTTPException, Query, Request, Response, Depends
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from src import db
+from src import sqlite_logging as db
 from src.analysis_service import (
     answer_question,
     clean_dataset_file,
@@ -26,22 +26,30 @@ from src.analysis_service import (
     list_datasets,
     upload_dataset_file,
 )
+from src.auth.routes import router as auth_router
 from src.dataset_summary import build_rich_dataset_summary
 from src.data_loader import load_dataset
+from src.db.postgresql import init_db as init_postgres_db
 
 # Create required directories
 os.makedirs("data", exist_ok=True)
 os.makedirs("outputs", exist_ok=True)
 os.makedirs("logs", exist_ok=True)
 
-# Initialize database schema
+# Initialize SQLite database schema (for logging)
 if os.path.exists("logs"):
     db.init_db()
 else:
     db.init_db()
 
+# Initialize PostgreSQL database schema (for users/auth)
+try:
+    init_postgres_db()
+except Exception as e:
+    logging.warning(f"PostgreSQL initialization skipped: {e}")
+
 # CORS and docs configuration
-allowed_origins_raw = os.environ.get("ALLOWED_ORIGINS") or os.environ.get("FRONTEND_ORIGIN") or "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174"
+allowed_origins_raw = os.environ.get("ALLOWED_ORIGINS") or os.environ.get("FRONTEND_ORIGIN") or "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174,http://localhost:3000,http://127.0.0.1:3000"
 ALLOWED_ORIGINS = [origin.strip() for origin in allowed_origins_raw.split(",") if origin.strip()]
 ENABLE_OPENAPI_DOCS = os.environ.get("ENABLE_OPENAPI_DOCS", "true").lower() in ("1", "true", "yes")
 
@@ -77,13 +85,16 @@ async def global_exception_handler(request: Request, exc: Exception):
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
-    allow_credentials=False,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Serve chart image files generated in outputs/
 app.mount("/outputs", StaticFiles(directory="outputs"), name="outputs")
+
+# Include authentication routes
+app.include_router(auth_router)
 
 
 class QueryRequest(BaseModel):
@@ -335,3 +346,29 @@ def clean_dataset_api(body: CleanRequest):
 @app.get("/api/summary/{dataset_id}")
 def get_summary_api(dataset_id: str):
     return get_summary(dataset_id)
+
+
+# Auth /api/* compatibility aliases
+from src.auth.dependencies import get_current_user
+from src.auth.routes import register, login, logout, get_current_user_info
+from src.schemas.auth import UserRegister, UserLogin
+
+
+@app.post("/api/auth/register")
+async def register_api(user_data: UserRegister):
+    return await register(user_data)
+
+
+@app.post("/api/auth/login")
+async def login_api(credentials: UserLogin):
+    return await login(credentials)
+
+
+@app.post("/api/auth/logout")
+async def logout_api(response: Response):
+    return await logout(response)
+
+
+@app.get("/api/auth/me")
+async def me_api(current_user=Depends(get_current_user)):
+    return await get_current_user_info(current_user)

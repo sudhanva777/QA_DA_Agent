@@ -5,7 +5,7 @@ import { ShieldCheck, Cpu, Database } from 'lucide-react';
 export default function Settings() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
-      <Navbar isConnected={true} />
+      <Navbar isConnected={true} activeDataset={null} />
 
       <main role="main" className="flex-1 max-w-4xl w-full mx-auto p-6 md:p-8 space-y-6">
         <div>
@@ -107,4 +107,3 @@ export default function Settings() {
     </div>
   );
 }
-

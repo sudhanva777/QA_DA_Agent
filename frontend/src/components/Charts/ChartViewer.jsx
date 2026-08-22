@@ -32,7 +32,7 @@ function getHeatmapColor(value) {
   return HEATMAP_COLORS[idx];
 }
 
-function HeatmapChart({ data, config }) {
+function HeatmapChart({ data, _config }) {
   if (!data || data.length === 0) return null;
   
   // Extract unique x and y categories
@@ -115,7 +115,7 @@ function HeatmapChart({ data, config }) {
             {data.map((d, idx) => {
               const xIdx = xCategories.indexOf(d.x);
               const yIdx = yCategories.indexOf(d.y);
-              const color = getHeatmapColor(d.value);
+              const _color = getHeatmapColor(d.value);
               // Use white text for dark colors, black for light
               const isDark = d.value < -0.2 || d.value > 0.6;
               return (

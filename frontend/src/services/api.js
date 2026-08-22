@@ -8,12 +8,71 @@ const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
   timeout: 60000, // 60s timeout for agent execution
+  withCredentials: true,
 });
+
+let authToken = null;
+
+export const setAuthToken = (token) => {
+  authToken = token;
+  if (token) {
+    apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  } else {
+    delete apiClient.defaults.headers.common['Authorization'];
+  }
+};
+
+// Request interceptor to ensure token is set on each request
+apiClient.interceptors.request.use((config) => {
+  if (authToken) {
+    config.headers.Authorization = `Bearer ${authToken}`;
+  }
+  return config;
+});
+
+// Response interceptor to handle 401 errors
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token expired or invalid
+      localStorage.removeItem('insightflow_auth');
+      authToken = null;
+      delete apiClient.defaults.headers.common['Authorization'];
+      // Redirect to login if not already there
+      if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 export const api = {
   // Health check
   getHealth: async () => {
     const response = await apiClient.get('/api/health');
+    return response.data;
+  },
+
+  // Auth endpoints
+  register: async (name, email, password) => {
+    const response = await apiClient.post('/api/auth/register', { name, email, password });
+    return response.data;
+  },
+
+  login: async (email, password) => {
+    const response = await apiClient.post('/api/auth/login', { email, password });
+    return response.data;
+  },
+
+  logout: async () => {
+    const response = await apiClient.post('/api/auth/logout');
+    return response.data;
+  },
+
+  getCurrentUser: async () => {
+    const response = await apiClient.get('/api/auth/me');
     return response.data;
   },
 

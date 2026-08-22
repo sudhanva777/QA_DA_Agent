@@ -19,6 +19,9 @@ services:
     environment:
       # Allow frontend container origin for CORS
       - ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://localhost:5174
+      # Database URL for Neon PostgreSQL (loaded from .env via env_file)
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
     volumes:
       # Persist uploaded datasets across container restarts
       - qa_data:/app/data

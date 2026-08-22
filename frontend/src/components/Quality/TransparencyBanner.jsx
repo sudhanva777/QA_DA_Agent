@@ -3,7 +3,7 @@ import { AlertTriangle, CheckCircle, Sparkles, Wrench, ArrowRight } from 'lucide
 
 export default function TransparencyBanner({
   qualityScore,
-  validationSummary,
+  _validationSummary,
   onAutoClean,
   onReviewIssues,
   onContinue,

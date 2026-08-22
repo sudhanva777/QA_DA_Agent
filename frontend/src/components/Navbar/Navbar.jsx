@@ -1,9 +1,29 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Database, Settings as SettingsIcon, LayoutDashboard, CheckCircle2, AlertCircle, Menu, Sparkles } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Database, Settings as SettingsIcon, LayoutDashboard, CheckCircle2, AlertCircle, Menu, Sparkles, LogOut, User, ChevronDown } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Navbar({ activeDataset, isConnected, onToggleMobileSidebar }) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout, isAuthenticated } = useAuth();
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setUserMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
 
   return (
     <header role="banner" className="h-[64px] bg-white border-b border-gray-200 px-4 md:px-6 flex items-center justify-between sticky top-0 z-30 shadow-sm">
@@ -22,7 +42,7 @@ export default function Navbar({ activeDataset, isConnected, onToggleMobileSideb
         )}
 
         <Link
-          to="/"
+          to="/dashboard"
           className="flex items-center space-x-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 p-1"
         >
           <div className="w-9 h-9 rounded-lg bg-blue-500 flex items-center justify-center text-white shadow-xs">
@@ -41,7 +61,7 @@ export default function Navbar({ activeDataset, isConnected, onToggleMobileSideb
       </div>
 
       {/* Center: Active Dataset Badge (Desktop & Tablet) */}
-      <div className="hidden sm:flex items-center space-x-2 bg-slate-50 border border-slate-200 px-3.5 py-1.5 rounded-full text-xs md:text-sm">
+      <div className="hidden sm:flex items-center space-x-2 bg-slate-50 border border-slate-200 px-3.5 py-1.5 rounded-full text-xs md:text-sm flex-1 justify-center">
         <span className="text-gray-500 font-medium">Dataset:</span>
         {activeDataset ? (
           <div className="flex items-center space-x-1.5">
@@ -62,9 +82,9 @@ export default function Navbar({ activeDataset, isConnected, onToggleMobileSideb
       <div className="flex items-center space-x-2">
         <nav role="navigation" aria-label="Main Navigation" className="flex items-center space-x-1">
           <Link
-            to="/"
+            to="/dashboard"
             className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              location.pathname === '/'
+              location.pathname === '/dashboard'
                 ? 'bg-blue-50 text-blue-600 font-semibold'
                 : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
             }`}
@@ -102,8 +122,42 @@ export default function Navbar({ activeDataset, isConnected, onToggleMobileSideb
             </span>
           )}
         </div>
+
+        {/* User Menu */}
+        {isAuthenticated && user && (
+          <div className="relative" ref={userMenuRef}>
+            <button
+              type="button"
+              onClick={() => setUserMenuOpen(!userMenuOpen)}
+              aria-expanded={userMenuOpen}
+              aria-haspopup="true"
+              className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center">
+                <User className="w-4 h-4" aria-hidden="true" />
+              </div>
+              <span className="hidden md:block max-w-[120px] truncate">{user.name || user.email}</span>
+              <ChevronDown className="w-4 h-4 text-gray-400" aria-hidden="true" />
+            </button>
+
+            {userMenuOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50 animate-in fade-in-0 zoom-in-95 duration-150">
+                <div className="px-3 py-2 border-b border-gray-100">
+                  <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
+                  <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+                >
+                  <LogOut className="w-4 h-4" aria-hidden="true" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </header>
   );
 }
-

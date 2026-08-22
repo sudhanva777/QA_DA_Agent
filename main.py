@@ -3,7 +3,7 @@ import os
 import time
 import pandas as pd
 
-from src import agent, db
+from src import agent, sqlite_logging as db
 from src.data_loader import build_schema_summary, load_dataset
 
 # Ensure outputs directory exists for chart saves
