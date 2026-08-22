@@ -354,21 +354,27 @@ from src.auth.routes import register, login, logout, get_current_user_info
 from src.schemas.auth import UserRegister, UserLogin
 
 
+# Auth /api/* compatibility aliases
+from src.auth.dependencies import get_current_user
+from src.auth.routes import register, login, logout, get_current_user_info
+from src.schemas.auth import UserRegister, UserLogin
+
+
 @app.post("/api/auth/register")
-async def register_api(user_data: UserRegister):
-    return await register(user_data)
+def register_api(user_data: UserRegister):
+    return register(user_data)
 
 
 @app.post("/api/auth/login")
-async def login_api(credentials: UserLogin):
-    return await login(credentials)
+def login_api(credentials: UserLogin):
+    return login(credentials)
 
 
 @app.post("/api/auth/logout")
-async def logout_api(response: Response):
-    return await logout(response)
+def logout_api(response: Response):
+    return logout(response)
 
 
 @app.get("/api/auth/me")
-async def me_api(current_user=Depends(get_current_user)):
-    return await get_current_user_info(current_user)
+def me_api(current_user=Depends(get_current_user)):
+    return get_current_user_info(current_user)
