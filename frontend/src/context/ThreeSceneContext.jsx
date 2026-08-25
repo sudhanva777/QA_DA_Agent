@@ -1,6 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, useRef, useMemo } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, useFrame, useThree, extend } from '@react-three/fiber';
 import * as THREE from 'three';
+import { Line2 } from 'three/examples/jsm/lines/Line2.js';
+import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
+import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
+
+// Extend React Three Fiber catalogue with Three.js Line2 fat lines
+extend({ Line2, LineGeometry, LineMaterial });
 
 const ThreeSceneContext = createContext(null);
 
@@ -300,15 +306,13 @@ function DataOrbCore({ position, reducedMotion }) {
 }
 
 function OrbitingRings({ position, reducedMotion }) {
-  const ringRefs = useRef([null, null, null, null]);
-  const { clock } = useThree();
+  const ringRefs = useRef([]);
 
   useFrame((state, delta) => {
     if (reducedMotion) return;
-    const t = clock.elapsedTime;
     
     ringRefs.current.forEach((ref, i) => {
-      if (ref.current) {
+      if (ref) {
         const speeds = [0.22, 0.18, 0.15, 0.12];
         const axes = [
           [0.3, 0.8, 0.2],
@@ -316,9 +320,9 @@ function OrbitingRings({ position, reducedMotion }) {
           [0.9, -0.3, 0.4],
           [-0.4, -0.7, 0.5],
         ];
-        ref.current.rotation.x += delta * speeds[i] * axes[i][0];
-        ref.current.rotation.y += delta * speeds[i] * axes[i][1];
-        ref.current.rotation.z += delta * speeds[i] * axes[i][2];
+        ref.rotation.x += delta * speeds[i] * axes[i][0];
+        ref.rotation.y += delta * speeds[i] * axes[i][1];
+        ref.rotation.z += delta * speeds[i] * axes[i][2];
       }
     });
   });
@@ -333,7 +337,7 @@ function OrbitingRings({ position, reducedMotion }) {
   return (
     <group position={position}>
       {ringConfigs.map((config, i) => (
-        <group key={i} ref={ringRefs.current[i]} rotation={config.rotation}>
+        <group key={i} ref={(el) => (ringRefs.current[i] = el)} rotation={config.rotation}>
           <mesh>
             <torusGeometry args={[config.radius, config.tube, 16, 120]} />
             <meshBasicMaterial color={config.color} transparent opacity={config.opacity} blending={THREE.AdditiveBlending} />
@@ -520,36 +524,47 @@ function ConnectionLines({ scrollProgress, reducedMotion }) {
 
 function ConnectionLine({ from, to, color, reducedMotion }) {
   const lineRef = useRef();
-  const { clock } = useThree();
+  const matRef = useRef();
+  const { size } = useThree();
   const progressRef = useRef(0);
-  const pointsRef = useRef(null);
+
+  const geometry = useMemo(() => {
+    const geo = new LineGeometry();
+    geo.setPositions([...from, ...to]);
+    return geo;
+  }, [from, to]);
 
   useEffect(() => {
-    const points = [
-      new THREE.Vector3(...from),
-      new THREE.Vector3(...to),
-    ];
-    pointsRef.current = points;
-  }, [from, to]);
+    if (lineRef.current) {
+      lineRef.current.computeLineDistances();
+    }
+  }, [geometry]);
 
   useFrame((state, delta) => {
     if (reducedMotion) return;
     progressRef.current = (progressRef.current + delta * 0.12) % 1;
+    if (matRef.current) {
+      matRef.current.dashOffset = -progressRef.current;
+      matRef.current.resolution.set(size.width, size.height);
+    }
   });
 
   return (
-    <line ref={lineRef} geometry={new THREE.BufferGeometry().setFromPoints(pointsRef.current || [new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,0)])}>
+    <line2 ref={lineRef} geometry={geometry}>
       <lineMaterial
+        ref={matRef}
         color={color}
         transparent
         opacity={0.25}
         blending={THREE.AdditiveBlending}
+        dashed={true}
         dashSize={0.6}
         gapSize={0.6}
-        dashOffset={progressRef.current}
-        linewidth={1}
+        dashOffset={0}
+        linewidth={1.5}
+        resolution={[size.width, size.height]}
       />
-    </line>
+    </line2>
   );
 }
 
