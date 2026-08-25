@@ -381,32 +381,27 @@ async def export_pdf(request: PDFExportRequest, current_user=Depends(get_current
 
 
 # Auth /api/* compatibility aliases
+from fastapi import status
 from src.auth.dependencies import get_current_user
 from src.auth.routes import register, login, logout, get_current_user_info
-from src.schemas.auth import UserRegister, UserLogin
+from src.schemas.auth import AuthResponse, MessageResponse, UserLogin, UserRegister, UserResponse
 
 
-# Auth /api/* compatibility aliases
-from src.auth.dependencies import get_current_user
-from src.auth.routes import register, login, logout, get_current_user_info
-from src.schemas.auth import UserRegister, UserLogin
-
-
-@app.post("/api/auth/register")
+@app.post("/api/auth/register", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
 def register_api(user_data: UserRegister):
     return register(user_data)
 
 
-@app.post("/api/auth/login")
+@app.post("/api/auth/login", response_model=AuthResponse)
 def login_api(credentials: UserLogin):
     return login(credentials)
 
 
-@app.post("/api/auth/logout")
+@app.post("/api/auth/logout", response_model=MessageResponse)
 def logout_api(response: Response):
     return logout(response)
 
 
-@app.get("/api/auth/me")
+@app.get("/api/auth/me", response_model=UserResponse)
 def me_api(current_user=Depends(get_current_user)):
     return get_current_user_info(current_user)

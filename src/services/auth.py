@@ -1,15 +1,13 @@
 from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
+import bcrypt
 from jose import jwt
-from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
 from src.db.postgresql import SessionLocal
 from src.models.user import User
 from src.schemas.auth import AuthResponse, Token, UserResponse
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 SECRET_KEY = "your-secret-key-change-in-production"
 ALGORITHM = "HS256"
@@ -22,11 +20,19 @@ def get_secret_key() -> str:
 
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    pwd_bytes = password.encode("utf-8")
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(pwd_bytes, salt).decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        return bcrypt.checkpw(
+            plain_password.encode("utf-8"),
+            hashed_password.encode("utf-8"),
+        )
+    except Exception:
+        return False
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
@@ -51,14 +57,15 @@ def decode_token(token: str) -> dict | None:
 def register_user(name: str, email: str, password: str) -> AuthResponse:
     db = SessionLocal()
     try:
-        existing_user = db.query(User).filter(User.email == email).first()
+        normalized_email = email.lower().strip()
+        existing_user = db.query(User).filter(User.email == normalized_email).first()
         if existing_user:
             return AuthResponse(success=False, error="An account with this email already exists")
 
         password_hash = hash_password(password)
         new_user = User(
             name=name.strip(),
-            email=email.lower().strip(),
+            email=normalized_email,
             password_hash=password_hash,
         )
         db.add(new_user)

@@ -50,9 +50,18 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+    try:
+        parsed_uuid = UUID(str(user_id))
+    except (ValueError, TypeError, AttributeError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid user identifier in token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
     db = SessionLocal()
     try:
-        user = db.query(User).filter(User.id == UUID(user_id)).first()
+        user = db.query(User).filter(User.id == parsed_uuid).first()
         if user is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
