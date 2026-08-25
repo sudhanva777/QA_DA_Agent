@@ -1,25 +1,27 @@
 # ===================================================================
 # QA Data Analysis Agent — Render Deployment Configuration
 # ===================================================================
-# This file configures deployment to Render.com
+# Single Web Service with Docker
 # 
-# Render Services:
-# 1. Backend: Web Service (Docker)
-# 2. Frontend: Static Site (or Web Service with Docker)
+# Architecture:
+#   One Docker container running:
+#   - Nginx (port 80) → public entry point
+#   - React SPA (static files served by Nginx)
+#   - FastAPI (internal port 8000) → proxied via Nginx /api/*
 # 
 # Environment Variables (set in Render Dashboard):
 # - GROQ_API_KEY: Your Groq API key
 # - DATABASE_URL: Neon PostgreSQL connection string
 # - JWT_SECRET_KEY: Generated secret (python -c "import secrets; print(secrets.token_urlsafe(32))")
 # - GROQ_MODEL: (optional) LLM model to use
-# - ALLOWED_ORIGINS: (optional) Comma-separated list of allowed origins
+# - ALLOWED_ORIGINS: (optional) Comma-separated list of allowed origins (same-origin in production)
 # - ENABLE_OPENAPI_DOCS: (optional) Enable/disable Swagger/Redoc
 # ===================================================================
 
 services:
-  # Backend API Service
+  # Single Combined Service
   - type: web
-    name: qa-data-analysis-api
+    name: qa-data-analysis-agent
     runtime: docker
     dockerfilePath: ./Dockerfile
     dockerContext: .
@@ -33,23 +35,10 @@ services:
       - key: GROQ_MODEL
         value: openai/gpt-oss-120b
       - key: ALLOWED_ORIGINS
-        value: https://your-frontend-domain.onrender.com
+        value: ""  # Same-origin in production, empty allows all (configure as needed)
       - key: ENABLE_OPENAPI_DOCS
         value: "true"
     healthCheckPath: /health
-    autoDeploy: true
-    plan: starter
-
-  # Frontend Static Site (alternative: deploy as Web Service with Docker)
-  - type: web
-    name: qa-data-analysis-frontend
-    runtime: docker
-    dockerfilePath: ./frontend/Dockerfile
-    dockerContext: ./frontend
-    envVars:
-      - key: VITE_API_BASE_URL
-        value: https://qa-data-analysis-api.onrender.com
-    healthCheckPath: /
     autoDeploy: true
     plan: starter
 
