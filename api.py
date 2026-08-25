@@ -52,7 +52,7 @@ except Exception as e:
     logging.warning(f"PostgreSQL initialization skipped: {e}")
 
 # CORS and docs configuration
-allowed_origins_raw = os.environ.get("ALLOWED_ORIGINS") or os.environ.get("FRONTEND_ORIGIN") or "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174,http://localhost:3000,http://127.0.0.1:3000"
+allowed_origins_raw = "*"
 ALLOWED_ORIGINS = [origin.strip() for origin in allowed_origins_raw.split(",") if origin.strip()]
 ENABLE_OPENAPI_DOCS = os.environ.get("ENABLE_OPENAPI_DOCS", "true").lower() in ("1", "true", "yes")
 
