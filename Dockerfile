@@ -72,6 +72,8 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     nginx \
     supervisor \
+    gettext \
+    gosu \
     libpng-dev \
     libfreetype6-dev \
     libjpeg-dev \
@@ -98,24 +100,25 @@ COPY --from=frontend-build /app/frontend/dist /usr/share/nginx/html
 
 # Copy Nginx configurations
 COPY nginx-main.conf /etc/nginx/nginx.conf
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf.template
 
 # Copy Supervisord configuration
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Copy entrypoint script
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 
 # Create required directories
 RUN mkdir -p data outputs logs/cache logs/nginx /tmp/nginx/client_body /tmp/nginx/proxy /tmp/nginx/fastcgi /tmp/nginx/uwsgi /tmp/nginx/scgi && \
     chown -R appuser:appuser /app /usr/share/nginx/html /tmp/nginx
 
-# Switch to non-root user
-USER appuser
-
-# Expose HTTP port (Nginx)
+# Expose HTTP port (Nginx) - default 80, Render will override with PORT
 EXPOSE 80
 
 # Health check against Nginx (which proxies to FastAPI /health)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD curl -f http://localhost:80/health || exit 1
+    CMD curl -f http://localhost:${PORT:-80}/health || exit 1
 
-# Start Supervisord (manages Nginx + FastAPI)
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# Start via entrypoint script (handles PORT substitution, runs as root then drops to appuser)
+ENTRYPOINT ["/docker-entrypoint.sh"]
