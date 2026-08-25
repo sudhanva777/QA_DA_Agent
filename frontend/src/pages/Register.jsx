@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Loader2, Database, Sparkles, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Database, Sparkles, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useThreeScene } from '../context/ThreeSceneContext';
 import toast from 'react-hot-toast';
 import PublicNavbar from '../components/Navbar/PublicNavbar';
 
@@ -16,6 +17,7 @@ const PASSWORD_REQUIREMENTS = [
 export default function Register() {
   const navigate = useNavigate();
   const { register } = useAuth();
+  const { _isReducedMotion } = useThreeScene();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -138,41 +140,53 @@ export default function Register() {
   };
 
   const getStrengthLabel = (strength) => {
-    if (strength <= 1) return { label: 'Very Weak', color: 'text-red-600', bg: 'bg-red-500' };
-    if (strength === 2) return { label: 'Weak', color: 'text-orange-600', bg: 'bg-orange-500' };
-    if (strength === 3) return { label: 'Fair', color: 'text-yellow-600', bg: 'bg-yellow-500' };
-    if (strength === 4) return { label: 'Strong', color: 'text-emerald-600', bg: 'bg-emerald-500' };
-    return { label: 'Very Strong', color: 'text-emerald-700', bg: 'bg-emerald-600' };
+    if (strength <= 1) return { label: 'Very Weak', color: 'text-[var(--accent-hot)]', bg: 'bg-[var(--accent-hot)]' };
+    if (strength === 2) return { label: 'Weak', color: 'text-[var(--accent-warm)]', bg: 'bg-[var(--accent-warm)]' };
+    if (strength === 3) return { label: 'Fair', color: 'text-yellow-400', bg: 'bg-yellow-400' };
+    if (strength === 4) return { label: 'Strong', color: 'text-[var(--accent-tertiary)]', bg: 'bg-[var(--accent-tertiary)]' };
+    return { label: 'Very Strong', color: 'text-[var(--accent-tertiary)]', bg: 'bg-[var(--accent-tertiary)]' };
   };
 
   const strength = getStrengthLabel(passwordStrength);
   const strengthPercent = (passwordStrength / 5) * 100;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
+    <div className="min-h-screen bg-[var(--bg-deep)] text-[var(--text-primary)] flex flex-col selection:bg-[var(--accent-primary)]/30 selection:text-[var(--accent-primary-glow)] relative">
       <PublicNavbar />
 
-      <main className="flex-1 flex items-center justify-center px-4 py-8 md:py-12">
+      {/* Global 3D scene is rendered by App */}
+
+      <main className="flex-1 flex items-center justify-center px-4 py-28 relative z-10">
         <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <Link to="/" className="inline-flex items-center space-x-2.5 mb-6">
-              <div className="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center text-white shadow-xs">
-                <Database className="w-6 h-6" aria-hidden="true" />
+          {/* Header */}
+          <div className="text-center mb-8 relative animate-fade-in-up">
+            <Link to="/" className="inline-flex items-center space-x-2.5 mb-6 group">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center text-white shadow-[var(--shadow-glow-sm)] group-hover:shadow-[var(--shadow-glow)] transition-all duration-200">
+                <Database className="w-5 h-5" aria-hidden="true" />
               </div>
-              <span className="text-2xl font-bold text-gray-900 tracking-tight">InsightFlow</span>
+              <span className="text-xl font-bold text-[var(--text-primary)] tracking-tight">DATA_AGENT</span>
             </Link>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight mb-2">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-primary)] tracking-tight mb-2">
               Create your account
             </h1>
-            <p className="text-gray-600">
-              Start analyzing data with AI-powered insights
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)]">
+              Start analyzing data with deterministic AI insights
             </p>
+            
+            {/* Floating accent elements */}
+            <div className="absolute inset-0 -z-10 pointer-events-none">
+              <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-[var(--accent-secondary)]/5 blur-xl" />
+              <div className="absolute bottom-0 left-0 w-20 h-20 rounded-full bg-[var(--accent-tertiary)]/5 blur-xl" />
+            </div>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-xl p-6 md:p-8 shadow-sm">
-            <form onSubmit={handleSubmit} noValidate className="space-y-5">
+          {/* Form Card - Glass panel floating in the universe */}
+          <div className="bg-[var(--bg-glass)] backdrop-blur-xl border border-[var(--border-default)] rounded-2xl p-6 sm:p-8 shadow-[var(--shadow-glass)] relative overflow-hidden animate-fade-in-up" style={{ transitionDelay: '100ms' }}>
+            <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent-secondary)]/10 via-transparent to-[var(--accent-tertiary)]/10 opacity-50 animate-pulse" />
+            
+            <form onSubmit={handleSubmit} noValidate className="space-y-4 relative z-10">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-900 mb-1.5">
+                <label htmlFor="name" className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
                   Full Name
                 </label>
                 <input
@@ -184,25 +198,20 @@ export default function Register() {
                   onChange={(e) => handleChange('name', e.target.value)}
                   onBlur={(e) => handleBlur('name', e.target.value)}
                   disabled={isLoading}
-                  className={`w-full px-4 py-2.5 text-base bg-white border rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.name && touched.name
-                      ? 'border-red-500 focus:ring-red-500'
-                      : 'border-gray-300 hover:border-gray-400'
-                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  className={`input-dark ${errors.name && touched.name ? 'border-[var(--accent-hot)]/70' : ''}`}
                   placeholder="Jane Doe"
                   aria-invalid={errors.name && touched.name ? 'true' : 'false'}
-                  aria-describedby={errors.name && touched.name ? 'name-error' : undefined}
                 />
                 {errors.name && touched.name && (
-                  <p id="name-error" className="mt-1.5 text-sm text-red-600" role="alert">
+                  <p className="mt-1.5 text-xs text-[var(--accent-hot)]" role="alert">
                     {errors.name}
                   </p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-900 mb-1.5">
-                  Email
+                <label htmlFor="email" className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
+                  Email Address
                 </label>
                 <input
                   ref={emailRef}
@@ -213,24 +222,19 @@ export default function Register() {
                   onChange={(e) => handleChange('email', e.target.value)}
                   onBlur={(e) => handleBlur('email', e.target.value)}
                   disabled={isLoading}
-                  className={`w-full px-4 py-2.5 text-base bg-white border rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.email && touched.email
-                      ? 'border-red-500 focus:ring-red-500'
-                      : 'border-gray-300 hover:border-gray-400'
-                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  className={`input-dark ${errors.email && touched.email ? 'border-[var(--accent-hot)]/70' : ''}`}
                   placeholder="you@company.com"
                   aria-invalid={errors.email && touched.email ? 'true' : 'false'}
-                  aria-describedby={errors.email && touched.email ? 'email-error' : undefined}
                 />
                 {errors.email && touched.email && (
-                  <p id="email-error" className="mt-1.5 text-sm text-red-600" role="alert">
+                  <p className="mt-1.5 text-xs text-[var(--accent-hot)]" role="alert">
                     {errors.email}
                   </p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-900 mb-1.5">
+                <label htmlFor="password" className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
                   Password
                 </label>
                 <div className="relative">
@@ -243,64 +247,58 @@ export default function Register() {
                     onChange={(e) => handleChange('password', e.target.value)}
                     onBlur={(e) => handleBlur('password', e.target.value)}
                     disabled={isLoading}
-                    className={`w-full px-4 py-2.5 text-base bg-white border rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 ${
-                      errors.password && touched.password
-                        ? 'border-red-500 focus:ring-red-500'
-                        : 'border-gray-300 hover:border-gray-400'
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    className={`input-dark pr-11 ${errors.password && touched.password ? 'border-[var(--accent-hot)]/70' : ''}`}
                     placeholder="••••••••"
                     aria-invalid={errors.password && touched.password ? 'true' : 'false'}
-                    aria-describedby={errors.password && touched.password ? 'password-error' : 'password-hint'}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-1"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)] p-1 focus:outline-none"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    aria-pressed={showPassword}
                   >
-                    {showPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 {errors.password && touched.password && (
-                  <p id="password-error" className="mt-1.5 text-sm text-red-600" role="alert">
+                  <p className="mt-1.5 text-xs text-[var(--accent-hot)]" role="alert">
                     {errors.password}
                   </p>
                 )}
 
                 {/* Password Strength Indicator */}
                 {formData.password && (
-                  <div className="mt-3" role="group" aria-label="Password strength">
+                  <div className="mt-3 p-3 rounded-lg bg-[var(--bg-base)] border border-[var(--border-subtle)]" role="group">
                     <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-xs font-medium text-gray-500">Password Strength</span>
-                      <span className={`text-xs font-semibold ${strength.color}`}>{strength.label}</span>
+                      <span className="text-[11px] text-[var(--text-muted)]">Password Strength</span>
+                      <span className={`text-[11px] font-semibold ${strength.color}`}>{strength.label}</span>
                     </div>
-                    <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden" aria-hidden="true">
+                    <div className="h-1 bg-[var(--bg-deep)] rounded-full overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all duration-300 ${strength.bg}`}
                         style={{ width: `${strengthPercent}%` }}
                       />
                     </div>
-                    <ul className="mt-2 space-y-1" aria-label="Password requirements">
+                    <div className="mt-2 grid grid-cols-2 gap-1">
                       {PASSWORD_REQUIREMENTS.map((req, i) => (
-                        <li key={i} className="flex items-center space-x-2 text-xs">
+                        <div key={i} className="flex items-center space-x-1.5 text-[10px]">
                           {req.test(formData.password) ? (
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" aria-hidden="true" />
+                            <CheckCircle2 className="w-3 h-3 text-[var(--accent-tertiary)] flex-shrink-0" />
                           ) : (
-                            <AlertCircle className="w-3.5 h-3.5 text-gray-300 flex-shrink-0" aria-hidden="true" />
+                            <AlertCircle className="w-3 h-3 text-[var(--text-dim)] flex-shrink-0" />
                           )}
-                          <span className={req.test(formData.password) ? 'text-emerald-600' : 'text-gray-400'}>
+                          <span className={req.test(formData.password) ? 'text-[var(--text-secondary)]' : 'text-[var(--text-muted)]'}>
                             {req.label}
                           </span>
-                        </li>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   </div>
                 )}
               </div>
 
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-900 mb-1.5">
+                <label htmlFor="confirmPassword" className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
                   Confirm Password
                 </label>
                 <input
@@ -312,59 +310,54 @@ export default function Register() {
                   onChange={(e) => handleChange('confirmPassword', e.target.value)}
                   onBlur={(e) => handleBlur('confirmPassword', e.target.value)}
                   disabled={isLoading}
-                  className={`w-full px-4 py-2.5 text-base bg-white border rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.confirmPassword && touched.confirmPassword
-                      ? 'border-red-500 focus:ring-red-500'
-                      : 'border-gray-300 hover:border-gray-400'
-                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  className={`input-dark ${errors.confirmPassword && touched.confirmPassword ? 'border-[var(--accent-hot)]/70' : ''}`}
                   placeholder="••••••••"
                   aria-invalid={errors.confirmPassword && touched.confirmPassword ? 'true' : 'false'}
-                  aria-describedby={errors.confirmPassword && touched.confirmPassword ? 'confirm-error' : undefined}
                 />
                 {errors.confirmPassword && touched.confirmPassword && (
-                  <p id="confirm-error" className="mt-1.5 text-sm text-red-600" role="alert">
+                  <p className="mt-1.5 text-xs text-[var(--accent-hot)]" role="alert">
                     {errors.confirmPassword}
                   </p>
                 )}
               </div>
 
-              <div className="flex items-start space-x-2">
+              <div className="flex items-start space-x-2 pt-1">
                 <input
                   type="checkbox"
                   id="terms"
                   required
-                  className="mt-0.5 w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  className="mt-0.5 w-4 h-4 rounded border-[var(--border-default)] bg-[var(--bg-base)] text-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)]"
                 />
-                <label htmlFor="terms" className="text-sm text-gray-600 leading-relaxed">
-                  I agree to the <Link href="#" className="text-blue-600 hover:text-blue-700 underline">Terms of Service</Link> and <Link href="#" className="text-blue-600 hover:text-blue-700 underline">Privacy Policy</Link>
+                <label htmlFor="terms" className="text-xs text-[var(--text-muted)] leading-relaxed">
+                  I agree to the Terms of Service and Privacy Policy
                 </label>
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="btn-primary w-full py-3 text-base font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary w-full py-3 text-sm font-semibold rounded-xl flex items-center justify-center space-x-2 mt-2"
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin mr-2" aria-hidden="true" />
-                    Creating account...
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    <span>Creating account...</span>
                   </>
                 ) : (
                   <>
-                    Create Account
-                    <Sparkles className="w-4 h-4 ml-1" aria-hidden="true" />
+                    <span>Create Account</span>
+                    <Sparkles className="w-4 h-4 ml-1 text-[var(--accent-primary-glow)]" />
                   </>
                 )}
               </button>
             </form>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
+            <div className="mt-6 text-center relative z-10">
+              <p className="text-xs text-[var(--text-secondary)]">
                 Already have an account?{' '}
                 <Link
                   to="/login"
-                  className="font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                  className="font-semibold text-[var(--accent-primary)] hover:text-[var(--accent-primary-glow)] transition-colors"
                 >
                   Sign in
                 </Link>
@@ -374,10 +367,8 @@ export default function Register() {
         </div>
       </main>
 
-      <footer className="py-6 px-4 border-t border-gray-200 bg-white">
-        <p className="text-center text-sm text-gray-500">
-          © {new Date().getFullYear()} InsightFlow. All rights reserved.
-        </p>
+      <footer className="py-6 px-4 border-t border-[var(--border-subtle)] text-center text-xs text-[var(--text-dim)] relative z-10">
+        © 2026 DATA_AGENT. All rights reserved.
       </footer>
     </div>
   );

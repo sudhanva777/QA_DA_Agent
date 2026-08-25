@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Eye, EyeOff, Loader2, Database } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Database, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useThreeScene } from '../context/ThreeSceneContext';
 import toast from 'react-hot-toast';
 import PublicNavbar from '../components/Navbar/PublicNavbar';
 
@@ -9,6 +10,7 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
+  const { _isReducedMotion } = useThreeScene();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -83,36 +85,55 @@ export default function Login() {
     }
   };
 
+  const fillDemo = () => {
+    setEmail('demo@insightflow.io');
+    setPassword('demo123456');
+    setErrors({});
+  };
+
   useEffect(() => {
     emailRef.current?.focus();
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
+    <div className="min-h-screen bg-[var(--bg-deep)] text-[var(--text-primary)] flex flex-col selection:bg-[var(--accent-primary)]/30 selection:text-[var(--accent-primary-glow)] relative">
       <PublicNavbar />
 
-      <main className="flex-1 flex items-center justify-center px-4 py-12">
+      {/* Global 3D scene is rendered by App - no need for local background */}
+
+      <main className="flex-1 flex items-center justify-center px-4 py-28 relative z-10">
         <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <Link to="/" className="inline-flex items-center space-x-2.5 mb-6">
-              <div className="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center text-white shadow-xs">
-                <Database className="w-6 h-6" aria-hidden="true" />
+          {/* Header */}
+          <div className="text-center mb-8 relative animate-fade-in-up">
+            <Link to="/" className="inline-flex items-center space-x-2.5 mb-6 group">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center text-white shadow-[var(--shadow-glow-sm)] group-hover:shadow-[var(--shadow-glow)] transition-all duration-200">
+                <Database className="w-5 h-5" aria-hidden="true" />
               </div>
-              <span className="text-2xl font-bold text-gray-900 tracking-tight">InsightFlow</span>
+              <span className="text-xl font-bold text-[var(--text-primary)] tracking-tight">DATA_AGENT</span>
             </Link>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight mb-2">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-primary)] tracking-tight mb-2">
               Welcome back
             </h1>
-            <p className="text-gray-600">
-              Sign in to continue your data analysis
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)]">
+              Sign in to access your dataset workstation
             </p>
+            
+            {/* Floating accent elements */}
+            <div className="absolute inset-0 -z-10 pointer-events-none">
+              <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-[var(--accent-primary)]/5 blur-xl" />
+              <div className="absolute bottom-0 left-0 w-20 h-20 rounded-full bg-[var(--accent-secondary)]/5 blur-xl" />
+            </div>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-xl p-6 md:p-8 shadow-sm">
-            <form onSubmit={handleSubmit} noValidate className="space-y-5">
+          {/* Form Card - Glass panel floating in the universe */}
+          <div className="bg-[var(--bg-glass)] backdrop-blur-xl border border-[var(--border-default)] rounded-2xl p-6 sm:p-8 shadow-[var(--shadow-glass)] relative overflow-hidden animate-fade-in-up" style={{ transitionDelay: '100ms' }}>
+            {/* Subtle animated border */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent-primary)]/10 via-transparent to-[var(--accent-secondary)]/10 opacity-50 animate-pulse" />
+            
+            <form onSubmit={handleSubmit} noValidate className="space-y-5 relative z-10">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-900 mb-1.5">
-                  Email
+                <label htmlFor="email" className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
+                  Email Address
                 </label>
                 <div className="relative">
                   <input
@@ -124,31 +145,23 @@ export default function Login() {
                     onChange={(e) => handleChange('email', e.target.value)}
                     onBlur={(e) => handleBlur('email', e.target.value)}
                     disabled={isLoading}
-                    className={`w-full px-4 py-2.5 text-base bg-white border rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      errors.email && touched.email
-                        ? 'border-red-500 focus:ring-red-500'
-                        : 'border-gray-300 hover:border-gray-400'
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    className={`input-dark ${
+                      errors.email && touched.email ? 'border-[var(--accent-hot)]/70 focus:border-[var(--accent-hot)]' : ''
+                    }`}
                     placeholder="you@company.com"
                     aria-invalid={errors.email && touched.email ? 'true' : 'false'}
-                    aria-describedby={errors.email && touched.email ? 'email-error' : undefined}
                   />
-                  {errors.email && touched.email && (
-                    <span id="email-error" className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500" role="alert">
-                      <EyeOff className="w-4 h-4" aria-hidden="true" />
-                    </span>
-                  )}
                 </div>
                 {errors.email && touched.email && (
-                  <p id="email-error" className="mt-1.5 text-sm text-red-600" role="alert">
+                  <p className="mt-1.5 text-xs text-[var(--accent-hot)]" role="alert">
                     {errors.email}
                   </p>
                 )}
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-900">
+                <div className="flex items-center justify-between mb-2">
+                  <label htmlFor="password" className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
                     Password
                   </label>
                 </div>
@@ -162,91 +175,82 @@ export default function Login() {
                     onChange={(e) => handleChange('password', e.target.value)}
                     onBlur={(e) => handleBlur('password', e.target.value)}
                     disabled={isLoading}
-                    className={`w-full px-4 py-2.5 text-base bg-white border rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 ${
-                      errors.password && touched.password
-                        ? 'border-red-500 focus:ring-red-500'
-                        : 'border-gray-300 hover:border-gray-400'
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    className={`input-dark pr-11 ${
+                      errors.password && touched.password ? 'border-[var(--accent-hot)]/70 focus:border-[var(--accent-hot)]' : ''
+                    }`}
                     placeholder="••••••••"
                     aria-invalid={errors.password && touched.password ? 'true' : 'false'}
-                    aria-describedby={errors.password && touched.password ? 'password-error' : undefined}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-1"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)] p-1 focus:outline-none"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    aria-pressed={showPassword}
                   >
-                    {showPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 {errors.password && touched.password && (
-                  <p id="password-error" className="mt-1.5 text-sm text-red-600" role="alert">
+                  <p className="mt-1.5 text-xs text-[var(--accent-hot)]" role="alert">
                     {errors.password}
                   </p>
                 )}
               </div>
 
-              <div className="flex items-center justify-between">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                  />
-                  <span className="text-sm text-gray-600">Remember me</span>
-                </label>
-                <Link
-                  to="/forgot-password"
-                  className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
-                >
-                  Forgot password?
-                </Link>
-              </div>
-
               <button
                 type="submit"
                 disabled={isLoading}
-                className="btn-primary w-full py-3 text-base font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary w-full py-3 text-sm font-semibold rounded-xl flex items-center justify-center space-x-2"
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin mr-2" aria-hidden="true" />
-                    Signing in...
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" aria-hidden="true" />
+                    <span>Signing in...</span>
                   </>
                 ) : (
-                  'Sign In'
+                  <>
+                    <span>Sign In</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
                 )}
               </button>
             </form>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
+            <div className="mt-6 text-center relative z-10">
+              <p className="text-xs text-[var(--text-secondary)]">
                 Don't have an account?{' '}
                 <Link
                   to="/register"
-                  className="font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                  className="font-semibold text-[var(--accent-primary)] hover:text-[var(--accent-primary-glow)] transition-colors"
                 >
-                  Create one
+                  Create one free
                 </Link>
               </p>
             </div>
 
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <p className="text-xs text-gray-500 text-center mb-3">Demo credentials (for testing)</p>
-              <div className="bg-gray-50 border border-gray-200 rounded-md p-3 text-xs text-gray-600 font-mono space-y-1">
-                <div>Email: <span className="text-gray-900">demo@insightflow.io</span></div>
-                <div>Password: <span className="text-gray-900">demo123456</span></div>
+            {/* Demo Helper Card */}
+            <div className="mt-6 pt-5 border-t border-[var(--border-subtle)] relative z-10">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-wider">Quick Demo Access</span>
+                <button
+                  type="button"
+                  onClick={fillDemo}
+                  className="text-[11px] font-medium text-[var(--accent-primary)] hover:text-[var(--accent-primary-glow)] underline"
+                >
+                  Fill credentials
+                </button>
+              </div>
+              <div className="bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-lg p-2.5 text-xs text-[var(--text-muted)] font-mono-tight space-y-1">
+                <div>Email: <span className="text-[var(--text-primary)]">demo@insightflow.io</span></div>
+                <div>Pass: <span className="text-[var(--text-primary)]">demo123456</span></div>
               </div>
             </div>
           </div>
         </div>
       </main>
 
-      <footer className="py-6 px-4 border-t border-gray-200 bg-white">
-        <p className="text-center text-sm text-gray-500">
-          © {new Date().getFullYear()} InsightFlow. All rights reserved.
-        </p>
+      <footer className="py-6 px-4 border-t border-[var(--border-subtle)] text-center text-xs text-[var(--text-dim)] relative z-10">
+        © 2026 DATA_AGENT. All rights reserved.
       </footer>
     </div>
   );

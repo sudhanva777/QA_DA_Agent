@@ -250,14 +250,15 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#050507] text-text-primary flex flex-col font-sans selection:bg-brand-500/30 selection:text-brand-200 relative">
+      {/* Global 3D scene is rendered by App */}
       <Navbar
         activeDataset={activeDataset}
         isConnected={isConnected}
         onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
       />
 
-      <div className="flex flex-1 overflow-hidden relative">
+      <div className="flex flex-1 overflow-hidden relative z-10">
         <Sidebar
           datasets={datasets}
           activeDataset={activeDataset}
@@ -293,20 +294,22 @@ export default function Dashboard() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="upload-modal-title"
-          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4"
         >
-          <div className="bg-white rounded-lg max-w-lg w-full p-6 shadow-xl border border-gray-200 relative animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-[#0E0E16] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-white/10 relative animate-in fade-in zoom-in-95 duration-150">
             <button
               type="button"
               onClick={() => setShowUploadModal(false)}
               aria-label="Close upload dialog"
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1.5 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="absolute top-4 right-4 text-text-muted hover:text-text-primary p-1.5 rounded-lg hover:bg-white/[0.06] focus:outline-none focus:ring-2 focus:ring-brand-500"
             >
               <X className="w-5 h-5" aria-hidden="true" />
             </button>
 
-            <div className="flex items-center space-x-2 text-gray-900 font-bold text-lg mb-4">
-              <Upload className="w-5 h-5 text-blue-500" aria-hidden="true" />
+            <div className="flex items-center space-x-2 text-text-primary font-bold text-lg mb-4">
+              <div className="w-8 h-8 rounded-lg bg-brand-500/10 border border-brand-500/30 flex items-center justify-center text-brand-400">
+                <Upload className="w-4 h-4" aria-hidden="true" />
+              </div>
               <h2 id="upload-modal-title">Upload Dataset</h2>
             </div>
 

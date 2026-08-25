@@ -9,7 +9,8 @@ import {
   RefreshCw,
   Info,
   Trash2,
-  X
+  X,
+  Sparkles
 } from 'lucide-react';
 
 export default function Sidebar({
@@ -27,20 +28,25 @@ export default function Sidebar({
   isMobileOpen = false,
   onCloseMobile
 }) {
-  const sidebarContent = (
+  return (
     <aside
       role="complementary"
       aria-label="Sidebar Navigation"
-      className="w-[280px] bg-white border-r border-gray-200 flex flex-col h-full overflow-hidden shrink-0 select-none"
+      className="w-[280px] bg-[var(--bg-base)]/95 backdrop-blur-xl border-r border-[var(--border-subtle)] flex flex-col h-full overflow-hidden shrink-0 select-none text-[var(--text-primary)] relative"
     >
+      {/* Subtle ambient glow */}
+      <div className="absolute inset-0 -z-10 pointer-events-none">
+        <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-[var(--accent-primary)]/5 blur-xl" />
+      </div>
+
       {/* Mobile Drawer Close Header */}
       {isMobileOpen && (
-        <div className="p-3 border-b border-gray-200 flex items-center justify-between md:hidden bg-gray-50">
-          <span className="font-semibold text-sm text-gray-900">Navigation Menu</span>
+        <div className="p-3 border-b border-[var(--border-subtle)] flex items-center justify-between md:hidden bg-[var(--bg-glass)] backdrop-blur-xl">
+          <span className="font-semibold text-xs text-[var(--text-primary)] uppercase tracking-wider">Navigation Menu</span>
           <button
             onClick={onCloseMobile}
             aria-label="Close menu"
-            className="p-1 rounded-md text-gray-500 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-1 rounded-md text-[var(--text-muted)] hover:bg-white/[0.08] hover:text-[var(--text-primary)]"
           >
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
@@ -48,13 +54,14 @@ export default function Sidebar({
       )}
 
       {/* Top Action Button: + New Analysis */}
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4 border-b border-[var(--border-subtle)] relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent-primary)]/5 via-transparent to-[var(--accent-secondary)]/5" />
         <button
           onClick={() => {
             onNewAnalysis();
             if (onCloseMobile) onCloseMobile();
           }}
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium text-sm py-2.5 px-4 rounded-md flex items-center justify-center space-x-2 transition-colors shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="btn-primary w-full py-2.5 px-4 text-xs font-semibold rounded-lg flex items-center justify-center space-x-2 shadow-[var(--shadow-glow-sm)] hover:shadow-[var(--shadow-glow)] relative z-10"
         >
           <Plus className="w-4 h-4" aria-hidden="true" />
           <span>New Analysis</span>
@@ -66,15 +73,15 @@ export default function Sidebar({
         {/* Section 1: Uploaded Datasets */}
         <section aria-labelledby="datasets-heading">
           <div className="flex items-center justify-between mb-2.5">
-            <h2 id="datasets-heading" className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-              Uploaded Datasets ({datasets.length})
+            <h2 id="datasets-heading" className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
+              Datasets ({datasets.length})
             </h2>
             <button
               onClick={() => {
                 onOpenUploadModal();
                 if (onCloseMobile) onCloseMobile();
               }}
-              className="text-xs text-blue-600 hover:text-blue-700 font-semibold focus:outline-none focus:underline"
+              className="text-[11px] text-[var(--accent-primary)] hover:text-[var(--accent-primary-glow)] font-semibold focus:outline-none focus:underline"
             >
               + Upload
             </button>
@@ -82,7 +89,7 @@ export default function Sidebar({
 
           <div className="space-y-1.5">
             {datasets.length === 0 ? (
-              <div className="text-xs text-gray-400 italic py-2 px-2">
+              <div className="text-xs text-[var(--text-dim)] italic py-2 px-2">
                 No datasets uploaded yet
               </div>
             ) : (
@@ -91,31 +98,32 @@ export default function Sidebar({
                 return (
                   <div
                     key={d.dataset_id}
-                    className={`flex items-center rounded-lg border transition-all ${
+                    className={`flex items-center rounded-lg border transition-all relative overflow-hidden ${
                       isActive
-                        ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-2xs'
-                        : 'border-transparent text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                        ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary-glow)] border-[var(--accent-primary)]/30 shadow-[var(--shadow-glow-sm)]'
+                        : 'border-transparent text-[var(--text-secondary)] hover:bg-white/[0.04] hover:text-[var(--text-primary)]'
                     }`}
                   >
+                    <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent-primary)]/5 to-transparent opacity-0 hover:opacity-100 transition-opacity" />
                     <button
                       type="button"
                       onClick={() => {
                         onSelectDataset(d.dataset_id);
                         if (onCloseMobile) onCloseMobile();
                       }}
-                      className="flex-1 text-left px-3 py-2 rounded-l-lg text-xs md:text-sm font-medium flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="flex-1 text-left px-3 py-2 rounded-l-lg text-xs font-medium flex items-center justify-between focus:outline-none relative z-10"
                     >
                       <div className="flex items-center space-x-2.5 min-w-0 pr-2">
                         <FileSpreadsheet
-                          className={`w-4 h-4 shrink-0 ${isActive ? 'text-blue-600' : 'text-gray-400'}`}
+                          className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)]'}`}
                           aria-hidden="true"
                         />
                         <span className="truncate">{d.filename}</span>
                       </div>
                       {isActive ? (
-                        <Check className="w-3.5 h-3.5 text-blue-600 shrink-0" aria-hidden="true" />
+                        <Check className="w-3.5 h-3.5 text-[var(--accent-primary)] shrink-0" aria-hidden="true" />
                       ) : (
-                        <span className="text-[11px] text-gray-400 font-normal shrink-0">
+                        <span className="text-[10px] text-[var(--text-dim)] font-normal shrink-0">
                           {d.size_formatted}
                         </span>
                       )}
@@ -128,9 +136,9 @@ export default function Sidebar({
                       }}
                       aria-label={`Remove dataset ${d.filename}`}
                       title="Remove dataset"
-                      className="mr-1 rounded-md p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
+                      className="mr-1 rounded-md p-1.5 text-[var(--text-muted)] hover:bg-[var(--accent-hot)]/10 hover:text-[var(--accent-hot)] transition-colors relative z-10"
                     >
-                      <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
+                      <Trash2 className="w-3 h-3" aria-hidden="true" />
                     </button>
                   </div>
                 );
@@ -141,38 +149,39 @@ export default function Sidebar({
 
         {/* Section 2: Active Dataset Metadata Card */}
         {datasetDetails && (
-          <section aria-label="Active Dataset Metadata" className="bg-white border border-gray-200 rounded-lg p-3.5 space-y-3 shadow-xs">
-            <div className="flex items-center space-x-2 text-gray-900 font-semibold text-xs md:text-sm">
-              <Database className="w-4 h-4 text-blue-500 shrink-0" aria-hidden="true" />
+          <section aria-label="Active Dataset Metadata" className="bg-[var(--bg-card)]/90 backdrop-blur-xl border border-[var(--border-subtle)] rounded-xl p-3.5 space-y-3 shadow-[var(--shadow-card)] relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent-primary)]/5 via-transparent to-[var(--accent-secondary)]/5" />
+            <div className="flex items-center space-x-2 text-[var(--text-primary)] font-semibold text-xs relative z-10">
+              <Database className="w-3.5 h-3.5 text-[var(--accent-primary)] shrink-0" aria-hidden="true" />
               <span className="truncate">{datasetDetails.filename}</span>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 text-center">
-              <div className="bg-slate-50 border border-slate-200 rounded-md p-2">
-                <div className="text-[10px] text-slate-500 font-medium uppercase">Records</div>
-                <div className="text-sm font-bold text-slate-900 mt-0.5">
+            <div className="grid grid-cols-2 gap-2 text-center relative z-10">
+              <div className="bg-[var(--bg-deep)] border border-[var(--border-subtle)] rounded-lg p-2">
+                <div className="text-[9px] text-[var(--text-muted)] font-medium uppercase tracking-wider">Records</div>
+                <div className="text-xs font-bold text-[var(--text-primary)] mt-0.5 font-mono-tight">
                   {datasetDetails.record_count?.toLocaleString()}
                 </div>
               </div>
-              <div className="bg-slate-50 border border-slate-200 rounded-md p-2">
-                <div className="text-[10px] text-slate-500 font-medium uppercase">Columns</div>
-                <div className="text-sm font-bold text-slate-900 mt-0.5">
+              <div className="bg-[var(--bg-deep)] border border-[var(--border-subtle)] rounded-lg p-2">
+                <div className="text-[9px] text-[var(--text-muted)] font-medium uppercase tracking-wider">Columns</div>
+                <div className="text-xs font-bold text-[var(--text-primary)] mt-0.5 font-mono-tight">
                   {datasetDetails.column_count}
                 </div>
               </div>
             </div>
 
-            <div className="bg-slate-50 border border-slate-200 rounded-md p-2 flex items-center justify-between">
-              <span className="text-xs text-slate-500 font-medium">Completeness</span>
-              <span className="text-xs font-bold text-emerald-600">
+            <div className="bg-[var(--bg-deep)] border border-[var(--border-subtle)] rounded-lg p-2 flex items-center justify-between relative z-10">
+              <span className="text-[11px] text-[var(--text-muted)]">Completeness</span>
+              <span className="text-xs font-bold text-[var(--accent-tertiary)] font-mono-tight">
                 {datasetDetails.completeness}%
               </span>
             </div>
 
             {datasetDetails.quality_score && (
-              <div className="bg-slate-50 border border-slate-200 rounded-md p-2 flex items-center justify-between">
-                <span className="text-xs text-slate-500 font-medium">Quality Score</span>
-                <span className="text-xs font-bold text-blue-600">
+              <div className="bg-[var(--bg-deep)] border border-[var(--border-subtle)] rounded-lg p-2 flex items-center justify-between relative z-10">
+                <span className="text-[11px] text-[var(--text-muted)]">Quality Score</span>
+                <span className="text-xs font-bold text-[var(--accent-primary)] font-mono-tight">
                   {datasetDetails.quality_score.score}/100
                 </span>
               </div>
@@ -183,7 +192,7 @@ export default function Sidebar({
         {/* Section 3: Recent Interaction History */}
         <section aria-labelledby="history-heading">
           <div className="flex items-center justify-between mb-2">
-            <h2 id="history-heading" className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center">
+            <h2 id="history-heading" className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider flex items-center">
               <History className="w-3.5 h-3.5 mr-1" aria-hidden="true" />
               History ({historyLogs.length})
             </h2>
@@ -191,15 +200,15 @@ export default function Sidebar({
               onClick={onRefreshHistory}
               aria-label="Refresh question history"
               title="Refresh history"
-              className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors p-1 rounded"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isLoadingHistory ? 'animate-spin' : ''}`} aria-hidden="true" />
+              <RefreshCw className={`w-3 h-3 ${isLoadingHistory ? 'animate-spin' : ''}`} aria-hidden="true" />
             </button>
           </div>
 
           <div className="space-y-1">
             {historyLogs.length === 0 ? (
-              <div className="text-xs text-gray-400 italic py-2 px-2">
+              <div className="text-xs text-[var(--text-dim)] italic py-2 px-2">
                 No past questions yet
               </div>
             ) : (
@@ -210,10 +219,11 @@ export default function Sidebar({
                     if (onSelectHistory) onSelectHistory(item);
                     if (onCloseMobile) onCloseMobile();
                   }}
-                  className="w-full text-left px-2.5 py-2 rounded-md text-xs text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors flex items-start space-x-2 group focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full text-left px-2.5 py-2 rounded-lg text-xs text-[var(--text-secondary)] hover:bg-white/[0.05] hover:text-[var(--text-primary)] transition-colors flex items-start space-x-2 group focus:outline-none relative overflow-hidden"
                 >
-                  <BarChart2 className="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-500 shrink-0 mt-0.5" aria-hidden="true" />
-                  <span className="line-clamp-2 font-normal leading-relaxed">
+                  <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent-primary)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <BarChart2 className="w-3.5 h-3.5 text-[var(--text-dim)] group-hover:text-[var(--accent-primary)] shrink-0 mt-0.5 relative z-10" aria-hidden="true" />
+                  <span className="line-clamp-2 font-normal leading-relaxed text-[11px] relative z-10">
                     {item.question}
                   </span>
                 </button>
@@ -224,42 +234,16 @@ export default function Sidebar({
       </div>
 
       {/* Footer Info */}
-      <div className="p-3 border-t border-gray-200 bg-gray-50 text-xs text-gray-500 flex items-center justify-between">
-        <span className="flex items-center">
-          <Info className="w-3.5 h-3.5 mr-1 text-gray-400" aria-hidden="true" />
-          Pandas Engine
+      <div className="p-3 border-t border-[var(--border-subtle)] bg-[var(--bg-deep)]/90 backdrop-blur-xl text-[11px] text-[var(--text-muted)] flex items-center justify-between relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--accent-primary)]/5 to-transparent" />
+        <span className="flex items-center relative z-10">
+          <Info className="w-3 h-3 mr-1.5 text-[var(--text-dim)]" aria-hidden="true" />
+          AST Python Sandbox
         </span>
-        <span className="font-mono text-[11px] bg-gray-200 text-gray-700 px-1.5 py-0.5 rounded">
+        <span className="font-mono-tight text-[10px] bg-white/[0.06] text-[var(--text-secondary)] px-1.5 py-0.5 rounded border border-[var(--border-subtle)] relative z-10">
           v2.0
         </span>
       </div>
     </aside>
   );
-
-  return (
-    <>
-      {/* Desktop Sidebar (Persistent) */}
-      <div className="hidden md:flex h-[calc(100vh-64px)]">
-        {sidebarContent}
-      </div>
-
-      {/* Mobile Drawer (Collapsible) */}
-      {isMobileOpen && (
-        <div className="fixed inset-0 z-40 md:hidden flex">
-          {/* Backdrop */}
-          <div
-            onClick={onCloseMobile}
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
-            aria-hidden="true"
-          />
-
-          {/* Sliding Panel */}
-          <div className="relative z-50 w-[280px] max-w-full bg-white h-full shadow-2xl">
-            {sidebarContent}
-          </div>
-        </div>
-      )}
-    </>
-  );
 }
-

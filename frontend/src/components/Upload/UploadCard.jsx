@@ -125,10 +125,10 @@ export default function UploadCard({ onUploadFiles, isUploading, setIsUploading 
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
-        className={`border-2 border-dashed rounded-md p-8 text-center cursor-pointer transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+        className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500 ${
           isDragOver
-            ? 'border-blue-500 bg-blue-50/50 scale-[1.005]'
-            : 'border-gray-300 hover:border-blue-500 hover:bg-gray-50/80 bg-white'
+            ? 'border-brand-400 bg-brand-500/10 scale-[1.005] shadow-glow-sm'
+            : 'border-white/10 hover:border-brand-500/50 hover:bg-[#12121A] bg-[#0A0A10]'
         }`}
       >
         <input
@@ -141,28 +141,28 @@ export default function UploadCard({ onUploadFiles, isUploading, setIsUploading 
         />
 
         <div className="flex flex-col items-center justify-center space-y-3">
-          <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-brand-500/10 border border-brand-500/30 text-brand-400 flex items-center justify-center">
             {isUploading ? (
-              <Loader2 className="w-6 h-6 animate-spin text-blue-500" aria-hidden="true" />
+              <Loader2 className="w-6 h-6 animate-spin text-brand-400" aria-hidden="true" />
             ) : (
               <Upload className="w-6 h-6" aria-hidden="true" />
             )}
           </div>
 
           <div>
-            <h3 className="text-base font-semibold text-gray-900">
+            <h3 className="text-base font-semibold text-text-primary">
               Drag & Drop datasets here
             </h3>
-            <p className="text-xs text-gray-500 mt-1">
-              Supports <span className="font-semibold text-gray-700">.CSV</span>, <span className="font-semibold text-gray-700">.XLSX</span>, and <span className="font-semibold text-gray-700">.XLS</span> up to 50MB
+            <p className="text-xs text-text-muted mt-1">
+              Supports <span className="font-semibold text-text-secondary">.CSV</span>, <span className="font-semibold text-text-secondary">.XLSX</span>, and <span className="font-semibold text-text-secondary">.XLS</span> up to 50MB
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
+          <div className="flex flex-wrap items-center justify-center gap-2.5 mt-2">
             <button
               type="button"
               disabled={isUploading}
-              className="inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-xs md:text-sm font-medium rounded-md shadow-xs transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="btn-primary text-xs font-semibold px-4 py-2 rounded-xl flex items-center"
             >
               <FileSpreadsheet className="w-4 h-4 mr-2" aria-hidden="true" />
               Browse Files
@@ -175,9 +175,9 @@ export default function UploadCard({ onUploadFiles, isUploading, setIsUploading 
                   e.stopPropagation();
                   handleUpload();
                 }}
-                className="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm font-medium rounded-md shadow-xs transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="inline-flex items-center px-4 py-2 bg-accent-emerald hover:bg-emerald-600 text-white text-xs font-semibold rounded-xl shadow-glow-sm transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-accent-emerald"
               >
-                <Plus className="w-4 h-4 mr-2" aria-hidden="true" />
+                <Plus className="w-4 h-4 mr-1.5" aria-hidden="true" />
                 Upload {queuedFiles.length} file{queuedFiles.length > 1 ? 's' : ''}
               </button>
             )}
@@ -187,17 +187,17 @@ export default function UploadCard({ onUploadFiles, isUploading, setIsUploading 
 
       {/* Queued Files List */}
       {queuedFiles.length > 0 && (
-        <div className="mt-4 rounded-md border border-gray-200 bg-gray-50 p-3.5 space-y-2">
+        <div className="mt-4 rounded-xl border border-white/[0.08] bg-[#12121A] p-3.5 space-y-2">
           <div className="flex items-center justify-between">
-            <h4 className="text-xs font-semibold text-gray-800 uppercase tracking-wider">Upload Queue</h4>
-            <span className="text-xs text-gray-500">{queuedFiles.length} file{queuedFiles.length > 1 ? 's' : ''}</span>
+            <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider">Upload Queue</h4>
+            <span className="text-xs text-text-dim">{queuedFiles.length} file{queuedFiles.length > 1 ? 's' : ''}</span>
           </div>
           <div className="space-y-2">
             {queuedFiles.map((file, index) => (
-              <div key={`${file.name}-${index}`} className="flex items-center justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-xs md:text-sm">
+              <div key={`${file.name}-${index}`} className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-[#0A0A10] px-3 py-2 text-xs md:text-sm">
                 <div className="min-w-0">
-                  <div className="truncate font-medium text-gray-800">{file.name}</div>
-                  <div className="text-xs text-gray-500">{formatFileSize(file.size)}</div>
+                  <div className="truncate font-medium text-text-primary">{file.name}</div>
+                  <div className="text-xs text-text-dim">{formatFileSize(file.size)}</div>
                 </div>
                 <button
                   type="button"
@@ -206,7 +206,7 @@ export default function UploadCard({ onUploadFiles, isUploading, setIsUploading 
                     handleRemoveQueuedFile(index);
                   }}
                   aria-label={`Remove queued file ${file.name}`}
-                  className="ml-3 rounded-md p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="ml-3 rounded-md p-1.5 text-text-muted hover:bg-accent-rose/10 hover:text-accent-rose transition-colors focus:outline-none focus:ring-2 focus:ring-accent-rose"
                   title="Remove file"
                 >
                   <X className="w-4 h-4" aria-hidden="true" />
@@ -221,15 +221,15 @@ export default function UploadCard({ onUploadFiles, isUploading, setIsUploading 
       {uploadedFileMeta.length > 0 && (
         <div className="mt-4 space-y-2">
           {uploadedFileMeta.map((item, index) => (
-            <div key={`${item.filename}-${index}`} className="bg-emerald-50 border border-emerald-200 rounded-md p-3 flex items-center justify-between text-xs md:text-sm text-emerald-800">
+            <div key={`${item.filename}-${index}`} className="bg-accent-emerald/10 border border-accent-emerald/30 rounded-xl p-3 flex items-center justify-between text-xs md:text-sm text-accent-emerald">
               <div className="flex items-center space-x-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" aria-hidden="true" />
-                <span className="font-semibold">{item.filename}</span>
-                <span className="text-emerald-600 hidden sm:inline">
+                <CheckCircle2 className="w-4 h-4 text-accent-emerald shrink-0" aria-hidden="true" />
+                <span className="font-semibold text-text-primary">{item.filename}</span>
+                <span className="text-text-muted hidden sm:inline font-mono">
                   ({item.record_count?.toLocaleString()} rows · {item.column_count} cols)
                 </span>
               </div>
-              <span className="text-emerald-700 font-medium bg-emerald-100 px-2 py-0.5 rounded text-xs">
+              <span className="text-accent-emerald font-medium bg-accent-emerald/20 px-2 py-0.5 rounded-full text-xs">
                 Ready for Q&A
               </span>
             </div>
@@ -239,4 +239,3 @@ export default function UploadCard({ onUploadFiles, isUploading, setIsUploading 
     </div>
   );
 }
-

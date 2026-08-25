@@ -77,13 +77,15 @@ export default function DatasetHealthPanel({
   ];
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-xs overflow-hidden mb-4">
-      <div className="px-4 py-3 border-b border-gray-200 bg-gray-50/80 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Shield className="w-4 h-4 text-blue-500" aria-hidden="true" />
-          <h2 className="text-sm font-bold text-gray-900">Dataset Intelligence</h2>
+    <div className="bg-[#0E0E16] border border-white/10 rounded-2xl shadow-dark-card overflow-hidden mb-4">
+      <div className="px-4 py-3 border-b border-white/[0.08] bg-[#12121A] flex items-center justify-between">
+        <div className="flex items-center space-x-2.5">
+          <div className="w-6 h-6 rounded-lg bg-brand-500/10 border border-brand-500/30 flex items-center justify-center text-brand-400">
+            <Shield className="w-3.5 h-3.5" aria-hidden="true" />
+          </div>
+          <h2 className="text-sm font-bold text-text-primary">Dataset Intelligence</h2>
           {qualityScore && (
-            <span className="text-xs text-gray-500 font-medium">
+            <span className="text-xs text-text-muted font-mono">
               {qualityScore.score}/100 · {qualityScore.status}
             </span>
           )}
@@ -92,7 +94,7 @@ export default function DatasetHealthPanel({
           type="button"
           onClick={() => setIsCollapsed(!isCollapsed)}
           aria-expanded={!isCollapsed}
-          className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-white/[0.06] focus:outline-none focus:ring-1 focus:ring-brand-500"
         >
           {isCollapsed ? (
             <ChevronDown className="w-4 h-4" aria-hidden="true" />
@@ -125,14 +127,14 @@ export default function DatasetHealthPanel({
               insights.length > 0 ? (
                 <InsightsPanel insights={insights} />
               ) : (
-                <p className="text-sm text-gray-500 italic">No insights available yet.</p>
+                <p className="text-sm text-text-muted italic">No insights available yet.</p>
               )
             )}
 
             {activeTab === 'profile' && (
               isLoadingProfile ? (
-                <div className="flex items-center justify-center py-8 text-gray-500 text-sm">
-                  <Loader2 className="w-5 h-5 animate-spin mr-2 text-blue-500" aria-hidden="true" />
+                <div className="flex items-center justify-center py-8 text-text-secondary text-sm">
+                  <Loader2 className="w-5 h-5 animate-spin mr-2 text-brand-400" aria-hidden="true" />
                   Loading data profile...
                 </div>
               ) : (
@@ -146,28 +148,28 @@ export default function DatasetHealthPanel({
                   {validationIssues.map((issue, idx) => (
                     <div
                       key={idx}
-                      className="flex items-start space-x-2.5 p-2.5 rounded-md border border-gray-100 bg-gray-50 text-xs"
+                      className="flex items-start space-x-2.5 p-3 rounded-xl border border-white/[0.06] bg-[#12121A] text-xs"
                     >
                       <AlertTriangle
-                        className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${
+                        className={`w-4 h-4 shrink-0 mt-0.5 ${
                           issue.severity === 'CRITICAL' || issue.severity === 'HIGH'
-                            ? 'text-red-500'
-                            : 'text-amber-500'
+                            ? 'text-accent-rose'
+                            : 'text-accent-amber'
                         }`}
                         aria-hidden="true"
                       />
                       <div>
-                        <span className="font-semibold text-gray-800">{issue.type}</span>
+                        <span className="font-semibold text-text-primary">{issue.type}</span>
                         {issue.column && (
-                          <span className="text-gray-400 ml-1">({issue.column})</span>
+                          <span className="text-text-muted ml-1 font-mono">({issue.column})</span>
                         )}
-                        <p className="text-gray-600 mt-0.5">{issue.message}</p>
+                        <p className="text-text-secondary mt-0.5">{issue.message}</p>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-gray-500 italic">No validation issues detected.</p>
+                <p className="text-sm text-text-muted italic">No validation issues detected.</p>
               )
             )}
           </div>

@@ -23,7 +23,6 @@ export default function DataTable({ data, title = 'Supporting Data' }) {
     );
   }, [rawRows, rawColumns, searchQuery]);
 
-
   const totalPages = Math.ceil(filteredRows.length / pageSize) || 1;
   const paginatedRows = useMemo(() => {
     if (!filteredRows.length) return [];
@@ -33,7 +32,7 @@ export default function DataTable({ data, title = 'Supporting Data' }) {
 
   if (!data || !data.columns || !data.rows) {
     return (
-      <div className="p-4 text-xs md:text-sm text-gray-500 italic bg-gray-50 rounded-md">
+      <div className="p-4 text-xs md:text-sm text-text-muted italic bg-[#12121A] border border-white/[0.06] rounded-xl">
         No tabular data returned for this query.
       </div>
     );
@@ -41,8 +40,6 @@ export default function DataTable({ data, title = 'Supporting Data' }) {
 
   const columns = data.columns;
   const rows = data.rows;
-
-
 
   // Export to CSV helper
   const handleExportCSV = () => {
@@ -70,13 +67,13 @@ export default function DataTable({ data, title = 'Supporting Data' }) {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-xs">
+    <div className="bg-[#0E0E16] border border-white/10 rounded-2xl overflow-hidden shadow-dark-card">
       {/* Table Toolbar */}
-      <div className="p-3.5 border-b border-gray-200 bg-gray-50 flex flex-wrap items-center justify-between gap-3">
+      <div className="p-3.5 border-b border-white/[0.08] bg-[#12121A] flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center space-x-2">
-          <TableIcon className="w-4 h-4 text-gray-500" aria-hidden="true" />
-          <span className="text-xs md:text-sm font-semibold text-gray-800">{title}</span>
-          <span className="text-xs text-gray-500 font-normal">
+          <TableIcon className="w-4 h-4 text-brand-400" aria-hidden="true" />
+          <span className="text-xs md:text-sm font-semibold text-text-primary">{title}</span>
+          <span className="text-xs text-text-muted font-normal">
             ({filteredRows.length} {filteredRows.length === 1 ? 'row' : 'rows'})
           </span>
         </div>
@@ -85,7 +82,7 @@ export default function DataTable({ data, title = 'Supporting Data' }) {
           {/* Search Input */}
           <div className="relative">
             <label htmlFor="table-search" className="sr-only">Search table data</label>
-            <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-gray-400" aria-hidden="true" />
+            <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-text-dim" aria-hidden="true" />
             <input
               id="table-search"
               type="text"
@@ -95,7 +92,7 @@ export default function DataTable({ data, title = 'Supporting Data' }) {
                 setSearchQuery(e.target.value);
                 setCurrentPage(1);
               }}
-              className="pl-8 pr-3 py-1.5 text-xs md:text-sm bg-white border border-gray-300 rounded-md focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400 w-44 text-gray-900 placeholder-gray-400"
+              className="pl-8 pr-3 py-1.5 text-xs bg-[#08080E] border border-white/10 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 w-44 text-text-primary placeholder-text-dim transition-all"
             />
           </div>
 
@@ -104,9 +101,9 @@ export default function DataTable({ data, title = 'Supporting Data' }) {
             onClick={handleExportCSV}
             title="Download CSV"
             aria-label="Download table data as CSV"
-            className="inline-flex items-center px-3 py-1.5 bg-white hover:bg-gray-100 text-gray-700 text-xs md:text-sm font-medium border border-gray-300 rounded-md transition-colors shadow-2xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="inline-flex items-center px-3 py-1.5 bg-[#12121A] hover:bg-[#181824] text-text-secondary hover:text-text-primary text-xs font-medium border border-white/10 rounded-lg transition-colors shadow-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
           >
-            <Download className="w-3.5 h-3.5 mr-1.5" aria-hidden="true" />
+            <Download className="w-3.5 h-3.5 mr-1.5 text-text-muted" aria-hidden="true" />
             CSV
           </button>
         </div>
@@ -114,21 +111,21 @@ export default function DataTable({ data, title = 'Supporting Data' }) {
 
       {/* Table Scrollable Container */}
       <div className="overflow-x-auto max-h-[380px]">
-        <table className="min-w-full divide-y divide-gray-200 text-left text-xs md:text-sm">
-          <thead className="bg-gray-50 text-gray-700 font-semibold sticky top-0 border-b border-gray-200 z-10">
+        <table className="min-w-full divide-y divide-white/[0.06] text-left text-xs">
+          <thead className="bg-[#12121A] text-text-secondary font-semibold sticky top-0 border-b border-white/[0.08] z-10">
             <tr>
-              <th className="py-2.5 px-4 w-12 text-center text-gray-400 font-mono text-xs">#</th>
+              <th className="py-2.5 px-4 w-12 text-center text-text-dim font-mono text-xs">#</th>
               {columns.map((col, idx) => (
-                <th key={idx} className="py-2.5 px-4 font-semibold text-gray-800 whitespace-nowrap">
+                <th key={idx} className="py-2.5 px-4 font-semibold text-text-primary whitespace-nowrap">
                   {col}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 text-gray-800 font-normal">
+          <tbody className="divide-y divide-white/[0.04] text-text-secondary font-normal">
             {paginatedRows.length === 0 ? (
               <tr>
-                <td colSpan={columns.length + 1} className="py-6 text-center text-gray-400 italic">
+                <td colSpan={columns.length + 1} className="py-6 text-center text-text-dim italic">
                   No matching data rows found.
                 </td>
               </tr>
@@ -138,9 +135,9 @@ export default function DataTable({ data, title = 'Supporting Data' }) {
                 return (
                   <tr
                     key={rIdx}
-                    className="even:bg-white odd:bg-gray-50/50 hover:bg-blue-50/30 transition-colors"
+                    className="even:bg-[#0A0A10] odd:bg-[#0E0E16] hover:bg-brand-500/10 transition-colors"
                   >
-                    <td className="py-2.5 px-4 text-center text-gray-400 font-mono text-xs">
+                    <td className="py-2.5 px-4 text-center text-text-dim font-mono text-xs">
                       {globalRowIdx}
                     </td>
                     {columns.map((col, cIdx) => {
@@ -150,11 +147,11 @@ export default function DataTable({ data, title = 'Supporting Data' }) {
                         <td
                           key={cIdx}
                           className={`py-2.5 px-4 whitespace-nowrap ${
-                            isNum ? 'font-mono text-slate-900' : 'text-gray-800'
+                            isNum ? 'font-mono text-brand-200' : 'text-text-secondary'
                           }`}
                         >
                           {val === null || val === undefined ? (
-                            <span className="text-gray-400 italic">null</span>
+                            <span className="text-text-dim italic">null</span>
                           ) : (
                             String(val)
                           )}
@@ -171,10 +168,10 @@ export default function DataTable({ data, title = 'Supporting Data' }) {
 
       {/* Pagination Footer */}
       {totalPages > 1 && (
-        <div className="p-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between text-xs md:text-sm text-gray-600">
+        <div className="p-3 border-t border-white/[0.08] bg-[#12121A] flex items-center justify-between text-xs text-text-muted">
           <span>
-            Page <span className="font-semibold text-gray-900">{currentPage}</span> of{' '}
-            <span className="font-semibold text-gray-900">{totalPages}</span>
+            Page <span className="font-semibold text-text-primary">{currentPage}</span> of{' '}
+            <span className="font-semibold text-text-primary">{totalPages}</span>
           </span>
 
           <div className="flex items-center space-x-1">
@@ -182,7 +179,7 @@ export default function DataTable({ data, title = 'Supporting Data' }) {
               disabled={currentPage === 1}
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               aria-label="Previous page"
-              className="p-1.5 rounded hover:bg-gray-200 disabled:opacity-40 disabled:hover:bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="p-1.5 rounded-lg hover:bg-white/[0.06] text-text-muted hover:text-text-primary disabled:opacity-30 disabled:hover:bg-transparent focus:outline-none focus:ring-1 focus:ring-brand-500"
             >
               <ChevronLeft className="w-4 h-4" aria-hidden="true" />
             </button>
@@ -190,7 +187,7 @@ export default function DataTable({ data, title = 'Supporting Data' }) {
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               aria-label="Next page"
-              className="p-1.5 rounded hover:bg-gray-200 disabled:opacity-40 disabled:hover:bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="p-1.5 rounded-lg hover:bg-white/[0.06] text-text-muted hover:text-text-primary disabled:opacity-30 disabled:hover:bg-transparent focus:outline-none focus:ring-1 focus:ring-brand-500"
             >
               <ChevronRight className="w-4 h-4" aria-hidden="true" />
             </button>
@@ -200,4 +197,3 @@ export default function DataTable({ data, title = 'Supporting Data' }) {
     </div>
   );
 }
-

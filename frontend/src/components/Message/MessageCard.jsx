@@ -8,7 +8,8 @@ import {
   Bot,
   User,
   Clock,
-  CheckCircle2
+  CheckCircle2,
+  Sparkles
 } from 'lucide-react';
 import Tabs from '../Common/Tabs';
 import DataTable from '../Tables/DataTable';
@@ -22,15 +23,15 @@ export default function MessageCard({ message }) {
     return (
       <div className="flex justify-end my-4">
         <div className="flex items-start space-x-2.5 max-w-2xl">
-          <div className="bg-blue-500 text-white rounded-lg rounded-tr-none px-4 py-3 shadow-xs">
+          <div className="bg-gradient-to-r from-brand-600 to-accent-violet text-white rounded-2xl rounded-tr-none px-4 py-3 shadow-glow-sm">
             <p className="text-sm md:text-base leading-relaxed font-normal">{message.content}</p>
             {message.datasetId && (
-              <div className="mt-2 text-xs bg-blue-600/60 px-2.5 py-0.5 rounded text-blue-100 font-medium inline-block">
+              <div className="mt-2 text-[11px] bg-black/25 px-2.5 py-0.5 rounded-full text-brand-100 font-mono font-medium inline-block border border-white/10">
                 Dataset: {message.datasetId}
               </div>
             )}
           </div>
-          <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+          <div className="w-8 h-8 rounded-xl bg-brand-500/20 border border-brand-500/40 text-brand-300 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-sm">
             <User className="w-4 h-4" aria-hidden="true" />
           </div>
         </div>
@@ -51,27 +52,27 @@ export default function MessageCard({ message }) {
     <div 
       className="flex justify-start my-5 w-full" 
       data-message-card
-      data-message={JSON.stringify(message).replace(/"/g, '"')}
+      data-message={JSON.stringify(message).replace(/"/g, '&quot;')}
     >
       <div className="flex items-start space-x-3 w-full max-w-4xl">
-        <div className="w-9 h-9 rounded-lg bg-blue-500 text-white flex items-center justify-center shadow-xs shrink-0 mt-1">
+        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-accent-violet text-white flex items-center justify-center shadow-glow-sm shrink-0 mt-1">
           <Bot className="w-5 h-5" aria-hidden="true" />
         </div>
 
-        <div className="flex-1 bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+        <div className="flex-1 bg-[#0E0E16] border border-white/10 rounded-2xl overflow-hidden shadow-dark-card">
           {/* Assistant Header */}
-          <div className="px-5 py-3 border-b border-gray-200 bg-gray-50/70 flex items-center justify-between flex-wrap gap-2">
+          <div className="px-5 py-3 border-b border-white/[0.08] bg-[#12121A] flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center space-x-2">
-              <span className="text-sm font-bold text-gray-900">Analysis Result</span>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span className="text-sm font-bold text-text-primary">Analysis Result</span>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-accent-emerald/10 text-accent-emerald border border-accent-emerald/30">
                 <CheckCircle2 className="w-3 h-3 mr-1" aria-hidden="true" />
                 Grounded Pandas Output
               </span>
             </div>
 
             {message.latency_ms && (
-              <div className="flex items-center text-xs text-gray-500 font-medium">
-                <Clock className="w-3.5 h-3.5 mr-1 text-gray-400" aria-hidden="true" />
+              <div className="flex items-center text-xs text-text-muted font-mono">
+                <Clock className="w-3.5 h-3.5 mr-1 text-text-dim" aria-hidden="true" />
                 <span>{Math.round(message.latency_ms)} ms</span>
               </div>
             )}
@@ -83,12 +84,13 @@ export default function MessageCard({ message }) {
           {/* Tab Content Viewers */}
           <div className="p-5">
             {activeTab === 'summary' && (
-              <div className="prose prose-slate max-w-none text-sm md:text-base leading-relaxed text-gray-800">
-                <div className="bg-blue-50/60 border-l-4 border-blue-500 p-4 rounded-r-md">
-                  <h3 className="text-xs uppercase font-bold text-blue-900 tracking-wider mb-1.5">
-                    Plain-English Explanation
+              <div className="prose prose-invert max-w-none text-sm md:text-base leading-relaxed text-text-secondary">
+                <div className="bg-[#12121A] border-l-4 border-brand-500 border border-white/[0.06] p-4 rounded-r-xl shadow-xs">
+                  <h3 className="text-xs uppercase font-bold text-brand-300 tracking-wider mb-2 flex items-center space-x-1.5">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Plain-English Answer</span>
                   </h3>
-                  <p className="text-gray-900 font-normal leading-relaxed">
+                  <p className="text-text-primary font-normal leading-relaxed text-sm md:text-base whitespace-pre-wrap">
                     {message.answer || message.explanation || 'No summary available.'}
                   </p>
                 </div>
@@ -108,29 +110,29 @@ export default function MessageCard({ message }) {
             )}
 
             {activeTab === 'logs' && (
-              <div className="space-y-3 font-mono text-xs bg-slate-900 text-slate-200 p-4 rounded-md">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                  <span className="text-slate-400">Execution Status:</span>
-                  <span className="text-emerald-400 font-semibold uppercase">
+              <div className="space-y-3 font-mono text-xs bg-[#08080E] text-text-secondary p-4 rounded-xl border border-white/[0.06]">
+                <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
+                  <span className="text-text-muted">Execution Status:</span>
+                  <span className="text-accent-emerald font-semibold uppercase">
                     {message.status || 'SUCCESS'}
                   </span>
                 </div>
-                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                  <span className="text-slate-400">Total Latency:</span>
-                  <span>{message.latency_ms ? `${Math.round(message.latency_ms)} ms` : 'N/A'}</span>
+                <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
+                  <span className="text-text-muted">Total Latency:</span>
+                  <span className="text-text-primary">{message.latency_ms ? `${Math.round(message.latency_ms)} ms` : 'N/A'}</span>
                 </div>
-                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                  <span className="text-slate-400">Inference Engine:</span>
-                  <span className="text-blue-400">Groq (llama-3.3-70b-versatile)</span>
+                <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
+                  <span className="text-text-muted">Inference Engine:</span>
+                  <span className="text-brand-300">Groq (llama-3.3-70b-versatile)</span>
                 </div>
-                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                  <span className="text-slate-400">Dataset Context:</span>
-                  <span className="text-slate-300">{message.datasetId || 'Default Dataset'}</span>
+                <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
+                  <span className="text-text-muted">Dataset Context:</span>
+                  <span className="text-text-primary">{message.datasetId || 'Default Dataset'}</span>
                 </div>
                 {message.analysis_plan && (
-                  <div className="pt-2 border-t border-slate-800">
-                    <div className="text-slate-400 mb-1">Analysis Plan:</div>
-                    <pre className="text-slate-300 whitespace-pre-wrap text-[11px] leading-relaxed">
+                  <div className="pt-2 border-t border-white/[0.06]">
+                    <div className="text-text-muted mb-1">Analysis Plan:</div>
+                    <pre className="text-brand-200/90 whitespace-pre-wrap text-[11px] leading-relaxed">
                       {JSON.stringify(message.analysis_plan, null, 2)}
                     </pre>
                   </div>
@@ -143,4 +145,3 @@ export default function MessageCard({ message }) {
     </div>
   );
 }
-
