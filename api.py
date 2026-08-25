@@ -352,7 +352,7 @@ def get_summary_api(dataset_id: str):
 
 
 # PDF Export endpoint
-@app.post("/api/export/pdf")
+@app.post("/export/pdf")
 async def export_pdf(request: PDFExportRequest, current_user=Depends(get_current_user)):
     try:
         pdf_path = generate_analysis_pdf(request.analysis_result)
@@ -378,6 +378,12 @@ async def export_pdf(request: PDFExportRequest, current_user=Depends(get_current
     except Exception as exc:
         logging.exception("PDF generation failed: %s", exc)
         raise HTTPException(status_code=500, detail="PDF generation failed") from exc
+
+
+# Compatibility alias for /api/export/pdf
+@app.post("/api/export/pdf")
+async def export_pdf_api(request: PDFExportRequest, current_user=Depends(get_current_user)):
+    return await export_pdf(request, current_user)
 
 
 # Auth /api/* compatibility aliases

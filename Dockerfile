@@ -109,9 +109,9 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
-# Create required directories
-RUN mkdir -p data outputs logs/cache logs/nginx /tmp/nginx/client_body /tmp/nginx/proxy /tmp/nginx/fastcgi /tmp/nginx/uwsgi /tmp/nginx/scgi && \
-    chown -R appuser:appuser /app /usr/share/nginx/html /tmp/nginx
+# Create required directories (app dirs persist, /tmp is recreated at runtime via entrypoint)
+RUN mkdir -p data outputs logs/cache logs/nginx && \
+    chown -R appuser:appuser /app /usr/share/nginx/html
 
 # Expose HTTP port (Nginx) - default 80, Render will override with PORT
 EXPOSE 80
