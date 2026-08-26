@@ -4,10 +4,10 @@ import time
 import traceback
 from typing import List, Optional
 
-from fastapi import FastAPI, File, UploadFile, HTTPException, Query, Request, Response, Depends
+from fastapi import FastAPI, File, UploadFile, HTTPException, Query, Request, Response, Depends, BackgroundTasks
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -52,7 +52,7 @@ except Exception as e:
     logging.warning(f"PostgreSQL initialization skipped: {e}")
 
 # CORS and docs configuration
-allowed_origins_raw = "*"
+allowed_origins_raw = os.environ.get("ALLOWED_ORIGINS", os.environ.get("ALLOWED_ORIGIN", "*"))
 ALLOWED_ORIGINS = [origin.strip() for origin in allowed_origins_raw.split(",") if origin.strip()]
 ENABLE_OPENAPI_DOCS = os.environ.get("ENABLE_OPENAPI_DOCS", "true").lower() in ("1", "true", "yes")
 
@@ -353,7 +353,7 @@ def get_summary_api(dataset_id: str):
 
 # PDF Export endpoint
 @app.post("/export/pdf")
-async def export_pdf(request: PDFExportRequest, current_user=Depends(get_current_user)):
+async def export_pdf(request: PDFExportRequest, current_user=Depends(get_current_user), background_tasks: BackgroundTasks = None):
     try:
         pdf_path = generate_analysis_pdf(request.analysis_result)
         dataset_name = request.dataset_name or request.analysis_result.get("dataset_id", "analysis")
@@ -362,18 +362,22 @@ async def export_pdf(request: PDFExportRequest, current_user=Depends(get_current
         timestamp = int(time.time())
         filename = f"analysis_report_{safe_name}_{timestamp}.pdf"
 
-        def iterfile():
-            with open(pdf_path, "rb") as f:
-                yield from f
+        def cleanup():
             try:
                 os.unlink(pdf_path)
             except Exception:
                 pass
 
-        return StreamingResponse(
-            iterfile(),
+        if background_tasks:
+            background_tasks.add_task(cleanup)
+        else:
+            # Fallback: clean up immediately if no background tasks (shouldn't happen in normal operation)
+            cleanup()
+
+        return FileResponse(
+            pdf_path,
             media_type="application/pdf",
-            headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+            filename=filename,
         )
     except Exception as exc:
         logging.exception("PDF generation failed: %s", exc)
@@ -382,8 +386,8 @@ async def export_pdf(request: PDFExportRequest, current_user=Depends(get_current
 
 # Compatibility alias for /api/export/pdf
 @app.post("/api/export/pdf")
-async def export_pdf_api(request: PDFExportRequest, current_user=Depends(get_current_user)):
-    return await export_pdf(request, current_user)
+async def export_pdf_api(request: PDFExportRequest, current_user=Depends(get_current_user), background_tasks: BackgroundTasks = None):
+    return await export_pdf(request, current_user, background_tasks)
 
 
 # Auth /api/* compatibility aliases

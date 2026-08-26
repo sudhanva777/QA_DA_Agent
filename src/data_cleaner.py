@@ -148,13 +148,17 @@ def clean_dataset(
     cleaned_dataset_id = dataset_name
     if save_cleaned:
         base, ext = os.path.splitext(dataset_name)
+        ext_lower = ext.lower() if ext else ".csv"
         if not base.endswith("_cleaned"):
             cleaned_filename = f"{base}_cleaned{ext if ext else '.csv'}"
         else:
             cleaned_filename = dataset_name
 
         cleaned_path = os.path.join("data", cleaned_filename)
-        cleaned_df.to_csv(cleaned_path, index=False)
+        if ext_lower in (".xlsx", ".xls"):
+            cleaned_df.to_excel(cleaned_path, index=False)
+        else:
+            cleaned_df.to_csv(cleaned_path, index=False)
         cleaned_dataset_id = cleaned_filename
 
     latency_ms = (time.perf_counter() - start_time) * 1000

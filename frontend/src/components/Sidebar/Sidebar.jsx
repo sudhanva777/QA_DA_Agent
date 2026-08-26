@@ -12,6 +12,7 @@ import {
   X,
   Sparkles
 } from 'lucide-react';
+import { Button } from '../ui';
 
 export default function Sidebar({
   datasets = [],
@@ -32,21 +33,16 @@ export default function Sidebar({
     <aside
       role="complementary"
       aria-label="Sidebar Navigation"
-      className="w-[280px] bg-[var(--bg-base)]/95 backdrop-blur-xl border-r border-[var(--border-subtle)] flex flex-col h-full overflow-hidden shrink-0 select-none text-[var(--text-primary)] relative"
+      className="w-72 bg-surface border-r border-border flex flex-col h-full overflow-hidden shrink-0 select-none text-text-primary relative"
     >
-      {/* Subtle ambient glow */}
-      <div className="absolute inset-0 -z-10 pointer-events-none">
-        <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-[var(--accent-primary)]/5 blur-xl" />
-      </div>
-
       {/* Mobile Drawer Close Header */}
       {isMobileOpen && (
-        <div className="p-3 border-b border-[var(--border-subtle)] flex items-center justify-between md:hidden bg-[var(--bg-glass)] backdrop-blur-xl">
-          <span className="font-semibold text-xs text-[var(--text-primary)] uppercase tracking-wider">Navigation Menu</span>
+        <div className="p-3 border-b border-border flex items-center justify-between md:hidden bg-white/95 backdrop-blur-xl">
+          <span className="font-semibold text-xs text-text-primary uppercase tracking-wider">Navigation Menu</span>
           <button
             onClick={onCloseMobile}
             aria-label="Close menu"
-            className="p-1 rounded-md text-[var(--text-muted)] hover:bg-white/[0.08] hover:text-[var(--text-primary)]"
+            className="p-1 rounded-md text-text-muted hover:bg-surface hover:text-text-primary"
           >
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
@@ -54,18 +50,17 @@ export default function Sidebar({
       )}
 
       {/* Top Action Button: + New Analysis */}
-      <div className="p-4 border-b border-[var(--border-subtle)] relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent-primary)]/5 via-transparent to-[var(--accent-secondary)]/5" />
-        <button
+      <div className="p-4 border-b border-border relative">
+        <Button
           onClick={() => {
             onNewAnalysis();
             if (onCloseMobile) onCloseMobile();
           }}
-          className="btn-primary w-full py-2.5 px-4 text-xs font-semibold rounded-lg flex items-center justify-center space-x-2 shadow-[var(--shadow-glow-sm)] hover:shadow-[var(--shadow-glow)] relative z-10"
+          className="w-full py-2.5 px-4 text-xs font-semibold rounded-lg flex items-center justify-center space-x-2"
+          leftIcon={<Plus className="w-4 h-4" />}
         >
-          <Plus className="w-4 h-4" aria-hidden="true" />
           <span>New Analysis</span>
-        </button>
+        </Button>
       </div>
 
       {/* Scrollable Content */}
@@ -73,23 +68,25 @@ export default function Sidebar({
         {/* Section 1: Uploaded Datasets */}
         <section aria-labelledby="datasets-heading">
           <div className="flex items-center justify-between mb-2.5">
-            <h2 id="datasets-heading" className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
+            <h2 id="datasets-heading" className="text-[11px] font-bold text-text-muted uppercase tracking-wider">
               Datasets ({datasets.length})
             </h2>
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => {
                 onOpenUploadModal();
                 if (onCloseMobile) onCloseMobile();
               }}
-              className="text-[11px] text-[var(--accent-primary)] hover:text-[var(--accent-primary-glow)] font-semibold focus:outline-none focus:underline"
+              leftIcon={<Plus className="w-3.5 h-3.5" />}
             >
-              + Upload
-            </button>
+              Upload
+            </Button>
           </div>
 
           <div className="space-y-1.5">
             {datasets.length === 0 ? (
-              <div className="text-xs text-[var(--text-dim)] italic py-2 px-2">
+              <div className="text-xs text-text-muted italic py-2 px-2">
                 No datasets uploaded yet
               </div>
             ) : (
@@ -100,30 +97,29 @@ export default function Sidebar({
                     key={d.dataset_id}
                     className={`flex items-center rounded-lg border transition-all relative overflow-hidden ${
                       isActive
-                        ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary-glow)] border-[var(--accent-primary)]/30 shadow-[var(--shadow-glow-sm)]'
-                        : 'border-transparent text-[var(--text-secondary)] hover:bg-white/[0.04] hover:text-[var(--text-primary)]'
+                        ? 'bg-primary/5 text-primary border-primary/20 shadow-sm'
+                        : 'border-transparent text-text-secondary hover:bg-surface hover:text-text-primary'
                     }`}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent-primary)]/5 to-transparent opacity-0 hover:opacity-100 transition-opacity" />
                     <button
                       type="button"
                       onClick={() => {
                         onSelectDataset(d.dataset_id);
                         if (onCloseMobile) onCloseMobile();
                       }}
-                      className="flex-1 text-left px-3 py-2 rounded-l-lg text-xs font-medium flex items-center justify-between focus:outline-none relative z-10"
+                      className="flex-1 text-left px-3 py-2 rounded-l-lg text-xs font-medium flex items-center justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-primary relative z-10"
                     >
                       <div className="flex items-center space-x-2.5 min-w-0 pr-2">
                         <FileSpreadsheet
-                          className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)]'}`}
+                          className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-primary' : 'text-text-muted'}`}
                           aria-hidden="true"
                         />
                         <span className="truncate">{d.filename}</span>
                       </div>
                       {isActive ? (
-                        <Check className="w-3.5 h-3.5 text-[var(--accent-primary)] shrink-0" aria-hidden="true" />
+                        <Check className="w-3.5 h-3.5 text-primary shrink-0" aria-hidden="true" />
                       ) : (
-                        <span className="text-[10px] text-[var(--text-dim)] font-normal shrink-0">
+                        <span className="text-[10px] text-text-muted font-normal shrink-0">
                           {d.size_formatted}
                         </span>
                       )}
@@ -136,7 +132,7 @@ export default function Sidebar({
                       }}
                       aria-label={`Remove dataset ${d.filename}`}
                       title="Remove dataset"
-                      className="mr-1 rounded-md p-1.5 text-[var(--text-muted)] hover:bg-[var(--accent-hot)]/10 hover:text-[var(--accent-hot)] transition-colors relative z-10"
+                      className="mr-1 rounded-md p-1.5 text-text-muted hover:bg-error/10 hover:text-error transition-colors relative z-10"
                     >
                       <Trash2 className="w-3 h-3" aria-hidden="true" />
                     </button>
@@ -149,39 +145,38 @@ export default function Sidebar({
 
         {/* Section 2: Active Dataset Metadata Card */}
         {datasetDetails && (
-          <section aria-label="Active Dataset Metadata" className="bg-[var(--bg-card)]/90 backdrop-blur-xl border border-[var(--border-subtle)] rounded-xl p-3.5 space-y-3 shadow-[var(--shadow-card)] relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent-primary)]/5 via-transparent to-[var(--accent-secondary)]/5" />
-            <div className="flex items-center space-x-2 text-[var(--text-primary)] font-semibold text-xs relative z-10">
-              <Database className="w-3.5 h-3.5 text-[var(--accent-primary)] shrink-0" aria-hidden="true" />
+          <section aria-label="Active Dataset Metadata" className="bg-surface/90 backdrop-blur-xl border border-border rounded-xl p-3.5 space-y-3 shadow-sm relative overflow-hidden">
+            <div className="flex items-center space-x-2 text-text-primary font-semibold text-xs relative z-10">
+              <Database className="w-3.5 h-3.5 text-primary shrink-0" aria-hidden="true" />
               <span className="truncate">{datasetDetails.filename}</span>
             </div>
 
             <div className="grid grid-cols-2 gap-2 text-center relative z-10">
-              <div className="bg-[var(--bg-deep)] border border-[var(--border-subtle)] rounded-lg p-2">
-                <div className="text-[9px] text-[var(--text-muted)] font-medium uppercase tracking-wider">Records</div>
-                <div className="text-xs font-bold text-[var(--text-primary)] mt-0.5 font-mono-tight">
+              <div className="bg-surface-secondary border border-border rounded-lg p-2">
+                <div className="text-[9px] text-text-muted font-medium uppercase tracking-wider">Records</div>
+                <div className="text-xs font-bold text-text-primary mt-0.5 font-mono-tight">
                   {datasetDetails.record_count?.toLocaleString()}
                 </div>
               </div>
-              <div className="bg-[var(--bg-deep)] border border-[var(--border-subtle)] rounded-lg p-2">
-                <div className="text-[9px] text-[var(--text-muted)] font-medium uppercase tracking-wider">Columns</div>
-                <div className="text-xs font-bold text-[var(--text-primary)] mt-0.5 font-mono-tight">
+              <div className="bg-surface-secondary border border-border rounded-lg p-2">
+                <div className="text-[9px] text-text-muted font-medium uppercase tracking-wider">Columns</div>
+                <div className="text-xs font-bold text-text-primary mt-0.5 font-mono-tight">
                   {datasetDetails.column_count}
                 </div>
               </div>
             </div>
 
-            <div className="bg-[var(--bg-deep)] border border-[var(--border-subtle)] rounded-lg p-2 flex items-center justify-between relative z-10">
-              <span className="text-[11px] text-[var(--text-muted)]">Completeness</span>
-              <span className="text-xs font-bold text-[var(--accent-tertiary)] font-mono-tight">
+            <div className="bg-surface-secondary border border-border rounded-lg p-2 flex items-center justify-between relative z-10">
+              <span className="text-[11px] text-text-muted">Completeness</span>
+              <span className="text-xs font-bold text-success font-mono-tight">
                 {datasetDetails.completeness}%
               </span>
             </div>
 
             {datasetDetails.quality_score && (
-              <div className="bg-[var(--bg-deep)] border border-[var(--border-subtle)] rounded-lg p-2 flex items-center justify-between relative z-10">
-                <span className="text-[11px] text-[var(--text-muted)]">Quality Score</span>
-                <span className="text-xs font-bold text-[var(--accent-primary)] font-mono-tight">
+              <div className="bg-surface-secondary border border-border rounded-lg p-2 flex items-center justify-between relative z-10">
+                <span className="text-[11px] text-text-muted">Quality Score</span>
+                <span className="text-xs font-bold text-primary font-mono-tight">
                   {datasetDetails.quality_score.score}/100
                 </span>
               </div>
@@ -192,23 +187,25 @@ export default function Sidebar({
         {/* Section 3: Recent Interaction History */}
         <section aria-labelledby="history-heading">
           <div className="flex items-center justify-between mb-2">
-            <h2 id="history-heading" className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider flex items-center">
+            <h2 id="history-heading" className="text-[11px] font-bold text-text-muted uppercase tracking-wider flex items-center">
               <History className="w-3.5 h-3.5 mr-1" aria-hidden="true" />
               History ({historyLogs.length})
             </h2>
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={onRefreshHistory}
               aria-label="Refresh question history"
               title="Refresh history"
-              className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors p-1 rounded"
+              disabled={isLoadingHistory}
             >
               <RefreshCw className={`w-3 h-3 ${isLoadingHistory ? 'animate-spin' : ''}`} aria-hidden="true" />
-            </button>
+            </Button>
           </div>
 
           <div className="space-y-1">
             {historyLogs.length === 0 ? (
-              <div className="text-xs text-[var(--text-dim)] italic py-2 px-2">
+              <div className="text-xs text-text-muted italic py-2 px-2">
                 No past questions yet
               </div>
             ) : (
@@ -219,10 +216,9 @@ export default function Sidebar({
                     if (onSelectHistory) onSelectHistory(item);
                     if (onCloseMobile) onCloseMobile();
                   }}
-                  className="w-full text-left px-2.5 py-2 rounded-lg text-xs text-[var(--text-secondary)] hover:bg-white/[0.05] hover:text-[var(--text-primary)] transition-colors flex items-start space-x-2 group focus:outline-none relative overflow-hidden"
+                  className="w-full text-left px-2.5 py-2 rounded-lg text-xs text-text-secondary hover:bg-surface hover:text-text-primary transition-colors flex items-start space-x-2 group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary relative overflow-hidden"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent-primary)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <BarChart2 className="w-3.5 h-3.5 text-[var(--text-dim)] group-hover:text-[var(--accent-primary)] shrink-0 mt-0.5 relative z-10" aria-hidden="true" />
+                  <BarChart2 className="w-3.5 h-3.5 text-text-muted group-hover:text-primary shrink-0 mt-0.5 relative z-10" aria-hidden="true" />
                   <span className="line-clamp-2 font-normal leading-relaxed text-[11px] relative z-10">
                     {item.question}
                   </span>
@@ -234,13 +230,12 @@ export default function Sidebar({
       </div>
 
       {/* Footer Info */}
-      <div className="p-3 border-t border-[var(--border-subtle)] bg-[var(--bg-deep)]/90 backdrop-blur-xl text-[11px] text-[var(--text-muted)] flex items-center justify-between relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--accent-primary)]/5 to-transparent" />
+      <div className="p-3 border-t border-border bg-surface/90 backdrop-blur-xl text-[11px] text-text-muted flex items-center justify-between relative">
         <span className="flex items-center relative z-10">
-          <Info className="w-3 h-3 mr-1.5 text-[var(--text-dim)]" aria-hidden="true" />
+          <Info className="w-3 h-3 mr-1.5 text-text-muted" aria-hidden="true" />
           AST Python Sandbox
         </span>
-        <span className="font-mono-tight text-[10px] bg-white/[0.06] text-[var(--text-secondary)] px-1.5 py-0.5 rounded border border-[var(--border-subtle)] relative z-10">
+        <span className="font-mono-tight text-[10px] bg-surface-secondary text-text-secondary px-1.5 py-0.5 rounded border border-border relative z-10">
           v2.0
         </span>
       </div>

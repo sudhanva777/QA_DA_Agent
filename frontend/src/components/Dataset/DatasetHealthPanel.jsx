@@ -8,7 +8,8 @@ import {
   ChevronUp,
   Loader2,
 } from 'lucide-react';
-import Tabs from '../Common/Tabs';
+import Tabs from '../ui/Tabs';
+import Button from '../ui/Button';
 import QualityHeader from '../Quality/QualityHeader';
 import TransparencyBanner from '../Quality/TransparencyBanner';
 import InsightsPanel from '../Insights/InsightsPanel';
@@ -77,10 +78,10 @@ export default function DatasetHealthPanel({
   ];
 
   return (
-    <div className="bg-[#0E0E16] border border-white/10 rounded-2xl shadow-dark-card overflow-hidden mb-4">
-      <div className="px-4 py-3 border-b border-white/[0.08] bg-[#12121A] flex items-center justify-between">
+    <div className="card shadow-sm overflow-hidden mb-4">
+      <div className="px-4 py-3 border-b border-border bg-surface-secondary flex items-center justify-between">
         <div className="flex items-center space-x-2.5">
-          <div className="w-6 h-6 rounded-lg bg-brand-500/10 border border-brand-500/30 flex items-center justify-center text-brand-400">
+          <div className="w-6 h-6 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
             <Shield className="w-3.5 h-3.5" aria-hidden="true" />
           </div>
           <h2 className="text-sm font-bold text-text-primary">Dataset Intelligence</h2>
@@ -90,18 +91,13 @@ export default function DatasetHealthPanel({
             </span>
           )}
         </div>
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => setIsCollapsed(!isCollapsed)}
           aria-expanded={!isCollapsed}
-          className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-white/[0.06] focus:outline-none focus:ring-1 focus:ring-brand-500"
-        >
-          {isCollapsed ? (
-            <ChevronDown className="w-4 h-4" aria-hidden="true" />
-          ) : (
-            <ChevronUp className="w-4 h-4" aria-hidden="true" />
-          )}
-        </button>
+          leftIcon={isCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+        />
       </div>
 
       {!isCollapsed && (
@@ -118,7 +114,7 @@ export default function DatasetHealthPanel({
             )}
           </div>
 
-          <Tabs tabs={tabs} activeTab={activeTab} onChangeTab={setActiveTab} />
+          <Tabs tabs={tabs} activeTab={activeTab} onChangeTab={setActiveTab} variant="default" />
 
           <div className="p-4">
             {activeTab === 'health' && <QualityHeader qualityScore={qualityScore} />}
@@ -134,7 +130,7 @@ export default function DatasetHealthPanel({
             {activeTab === 'profile' && (
               isLoadingProfile ? (
                 <div className="flex items-center justify-center py-8 text-text-secondary text-sm">
-                  <Loader2 className="w-5 h-5 animate-spin mr-2 text-brand-400" aria-hidden="true" />
+                  <Loader2 className="w-5 h-5 animate-spin mr-2 text-primary" aria-hidden="true" />
                   Loading data profile...
                 </div>
               ) : (
@@ -148,13 +144,13 @@ export default function DatasetHealthPanel({
                   {validationIssues.map((issue, idx) => (
                     <div
                       key={idx}
-                      className="flex items-start space-x-2.5 p-3 rounded-xl border border-white/[0.06] bg-[#12121A] text-xs"
+                      className="flex items-start space-x-2.5 p-3 rounded-xl border border-border bg-surface-secondary text-xs"
                     >
                       <AlertTriangle
                         className={`w-4 h-4 shrink-0 mt-0.5 ${
                           issue.severity === 'CRITICAL' || issue.severity === 'HIGH'
-                            ? 'text-accent-rose'
-                            : 'text-accent-amber'
+                            ? 'text-error'
+                            : 'text-warning'
                         }`}
                         aria-hidden="true"
                       />

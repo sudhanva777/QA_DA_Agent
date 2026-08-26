@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Sparkles, Wrench, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { Button, Card } from '../ui';
 
 const CLEANING_OPERATIONS = [
   { id: 'trim_whitespace', label: 'Trim Whitespace', description: 'Remove leading/trailing spaces from text columns' },
@@ -76,27 +77,27 @@ export default function CleaningModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="cleaning-modal-title"
-      className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
     >
-      <div className="bg-[#0E0E16] rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-glass border border-white/10 relative animate-in fade-in zoom-in-95 duration-150">
+      <div className="card-elevated max-w-2xl w-full max-h-[85vh] flex flex-col shadow-xl border border-border relative animate-in fade-in-0 zoom-in-95 duration-200">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-white/[0.08] bg-[#12121A] flex items-center justify-between rounded-t-2xl">
+        <div className="px-6 py-4 border-b border-border bg-surface-secondary flex items-center justify-between rounded-t-xl">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-lg bg-brand-500/10 border border-brand-500/30 flex items-center justify-center text-brand-400">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
               <Wrench className="w-4 h-4" aria-hidden="true" />
             </div>
             <h2 id="cleaning-modal-title" className="text-base font-bold text-text-primary">
               Smart Data Cleaning
             </h2>
           </div>
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={onClose}
             aria-label="Close cleaning dialog"
-            className="text-text-muted hover:text-text-primary p-1.5 rounded-lg hover:bg-white/[0.06] focus:outline-none focus:ring-2 focus:ring-brand-500"
-          >
-            <X className="w-5 h-5" aria-hidden="true" />
-          </button>
+            leftIcon={<X className="w-5 h-5" />}
+          />
         </div>
 
         {/* Body */}
@@ -109,13 +110,8 @@ export default function CleaningModal({
                   Original dataset is never overwritten.
                 </p>
                 <div className="flex items-center space-x-2">
-                  <button type="button" onClick={selectAll} className="text-xs text-brand-400 hover:text-brand-300 font-semibold">
-                    Select All
-                  </button>
-                  <span className="text-white/20">|</span>
-                  <button type="button" onClick={deselectAll} className="text-xs text-text-muted hover:text-text-primary font-medium">
-                    Clear
-                  </button>
+                  <Button variant="ghost" size="sm" onClick={selectAll}>Select All</Button>
+                  <Button variant="ghost" size="sm" onClick={deselectAll}>Clear</Button>
                 </div>
               </div>
 
@@ -125,15 +121,15 @@ export default function CleaningModal({
                     key={op.id}
                     className={`flex items-start space-x-3 p-3 rounded-xl border cursor-pointer transition-all ${
                       selectedOps.has(op.id)
-                        ? 'bg-brand-500/10 border-brand-500/30 text-brand-200 shadow-glow-sm'
-                        : 'bg-[#12121A] border-white/[0.06] hover:bg-[#181824] text-text-secondary'
+                        ? 'bg-primary/5 border-primary/30 text-primary shadow-sm'
+                        : 'bg-surface-secondary border-border hover:bg-surface hover:text-text-primary'
                     }`}
                   >
                     <input
                       type="checkbox"
                       checked={selectedOps.has(op.id)}
                       onChange={() => toggleOp(op.id)}
-                      className="mt-0.5 rounded border-white/20 bg-[#0E0E16] text-brand-500 focus:ring-brand-500"
+                      className="mt-0.5 rounded border-border bg-surface text-primary focus:ring-primary"
                     />
                     <div>
                       <div className="text-xs md:text-sm font-semibold text-text-primary">{op.label}</div>
@@ -151,15 +147,15 @@ export default function CleaningModal({
                   </h3>
                   <div className="space-y-1 max-h-40 overflow-y-auto">
                     {validationIssues.slice(0, 8).map((issue, idx) => (
-                      <div key={idx} className="flex items-start space-x-2 text-xs bg-[#12121A] p-2 rounded-lg border border-white/[0.04]">
+                      <div key={idx} className="flex items-start space-x-2 text-xs card p-2">
                         <AlertTriangle className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${
-                          issue.severity === 'CRITICAL' || issue.severity === 'HIGH' ? 'text-accent-rose' : 'text-accent-amber'
+                          issue.severity === 'CRITICAL' || issue.severity === 'HIGH' ? 'text-error' : 'text-warning'
                         }`} aria-hidden="true" />
                         <span className="text-text-secondary">{issue.message}</span>
                       </div>
                     ))}
                     {validationIssues.length > 8 && (
-                      <div className="text-xs text-text-dim italic">... and {validationIssues.length - 8} more</div>
+                      <div className="text-xs text-text-muted italic">... and {validationIssues.length - 8} more</div>
                     )}
                   </div>
                 </div>
@@ -168,20 +164,20 @@ export default function CleaningModal({
           ) : (
             /* Cleaning Result Report */
             <div className="space-y-4">
-              <div className="flex items-center space-x-2 text-accent-emerald">
+              <div className="flex items-center space-x-2 text-success">
                 <CheckCircle className="w-5 h-5" aria-hidden="true" />
                 <span className="text-sm font-semibold text-text-primary">{cleaningResult.message}</span>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-[#12121A] rounded-xl p-3.5 border border-white/[0.08]">
+                <Card variant="bordered" padding="md">
                   <div className="text-xs text-text-muted font-medium mb-1">Before</div>
                   <div className="text-sm font-mono text-text-secondary">{cleaningResult.stats_before?.rows} rows · {cleaningResult.stats_before?.columns} cols · {cleaningResult.stats_before?.nulls} nulls</div>
-                </div>
-                <div className="bg-accent-emerald/10 rounded-xl p-3.5 border border-accent-emerald/30">
-                  <div className="text-xs text-accent-emerald font-medium mb-1">After</div>
+                </Card>
+                <Card variant="filled" padding="md" className="border-success/30 bg-success/5">
+                  <div className="text-xs text-success font-medium mb-1">After</div>
                   <div className="text-sm font-mono text-text-primary">{cleaningResult.stats_after?.rows} rows · {cleaningResult.stats_after?.columns} cols · {cleaningResult.stats_after?.nulls} nulls</div>
-                </div>
+                </Card>
               </div>
 
               {cleaningResult.modifications && cleaningResult.modifications.length > 0 && (
@@ -190,7 +186,7 @@ export default function CleaningModal({
                   <ul className="space-y-1">
                     {cleaningResult.modifications.map((mod, idx) => (
                       <li key={idx} className="text-xs text-text-secondary flex items-start space-x-2">
-                        <CheckCircle className="w-3.5 h-3.5 text-accent-emerald mt-0.5 shrink-0" aria-hidden="true" />
+                        <CheckCircle className="w-3.5 h-3.5 text-success mt-0.5 shrink-0" aria-hidden="true" />
                         <span>{mod}</span>
                       </li>
                     ))}
@@ -199,40 +195,31 @@ export default function CleaningModal({
               )}
 
               <div className="text-xs text-text-muted">
-                Cleaned dataset saved as <span className="font-semibold font-mono text-brand-300">{cleaningResult.cleaned_dataset_id}</span>
+                Cleaned dataset saved as <span className="font-semibold font-mono text-primary">{cleaningResult.cleaned_dataset_id}</span>
               </div>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-white/[0.08] bg-[#12121A] flex items-center justify-end space-x-3 rounded-b-2xl">
-          <button
+        <div className="px-6 py-4 border-t border-border bg-surface-secondary flex items-center justify-end space-x-3 rounded-b-xl">
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-medium text-text-secondary bg-[#08080E] border border-white/10 rounded-xl hover:bg-white/[0.06] hover:text-text-primary focus:outline-none focus:ring-1 focus:ring-brand-500"
           >
             {cleaningResult ? 'Done' : 'Cancel'}
-          </button>
+          </Button>
           {!cleaningResult && (
-            <button
+            <Button
               type="button"
               onClick={handleClean}
               disabled={isCleaning || selectedOps.size === 0}
-              className="btn-primary text-xs font-semibold py-2 px-4 rounded-xl flex items-center space-x-2"
+              leftIcon={isCleaning ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
             >
-              {isCleaning ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
-                  <span>Cleaning...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4" aria-hidden="true" />
-                  <span>Clean Dataset</span>
-                </>
-              )}
-            </button>
+              {isCleaning ? 'Cleaning...' : 'Clean Dataset'}
+            </Button>
           )}
         </div>
       </div>

@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Upload, FileSpreadsheet, CheckCircle2, Loader2, X, Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { Button, Input } from '../ui';
 
 const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024;
 const VALID_EXTENSIONS = ['.csv', '.xlsx', '.xls'];
@@ -125,10 +126,10 @@ export default function UploadCard({ onUploadFiles, isUploading, setIsUploading 
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
-        className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500 ${
+        className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary ${
           isDragOver
-            ? 'border-brand-400 bg-brand-500/10 scale-[1.005] shadow-glow-sm'
-            : 'border-white/10 hover:border-brand-500/50 hover:bg-[#12121A] bg-[#0A0A10]'
+            ? 'border-primary bg-primary/5'
+            : 'border-border hover:border-primary/50 hover:bg-surface-secondary bg-surface'
         }`}
       >
         <input
@@ -141,9 +142,9 @@ export default function UploadCard({ onUploadFiles, isUploading, setIsUploading 
         />
 
         <div className="flex flex-col items-center justify-center space-y-3">
-          <div className="w-12 h-12 rounded-2xl bg-brand-500/10 border border-brand-500/30 text-brand-400 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center">
             {isUploading ? (
-              <Loader2 className="w-6 h-6 animate-spin text-brand-400" aria-hidden="true" />
+              <Loader2 className="w-6 h-6 animate-spin text-primary" aria-hidden="true" />
             ) : (
               <Upload className="w-6 h-6" aria-hidden="true" />
             )}
@@ -159,27 +160,26 @@ export default function UploadCard({ onUploadFiles, isUploading, setIsUploading 
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-2.5 mt-2">
-            <button
+            <Button
               type="button"
+              variant="secondary"
               disabled={isUploading}
-              className="btn-primary text-xs font-semibold px-4 py-2 rounded-xl flex items-center"
+              leftIcon={<FileSpreadsheet className="w-4 h-4" />}
             >
-              <FileSpreadsheet className="w-4 h-4 mr-2" aria-hidden="true" />
               Browse Files
-            </button>
+            </Button>
             {queuedFiles.length > 0 && (
-              <button
+              <Button
                 type="button"
                 disabled={isUploading}
                 onClick={(e) => {
                   e.stopPropagation();
                   handleUpload();
                 }}
-                className="inline-flex items-center px-4 py-2 bg-accent-emerald hover:bg-emerald-600 text-white text-xs font-semibold rounded-xl shadow-glow-sm transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-accent-emerald"
+                leftIcon={<Plus className="w-4 h-4" />}
               >
-                <Plus className="w-4 h-4 mr-1.5" aria-hidden="true" />
                 Upload {queuedFiles.length} file{queuedFiles.length > 1 ? 's' : ''}
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -187,30 +187,30 @@ export default function UploadCard({ onUploadFiles, isUploading, setIsUploading 
 
       {/* Queued Files List */}
       {queuedFiles.length > 0 && (
-        <div className="mt-4 rounded-xl border border-white/[0.08] bg-[#12121A] p-3.5 space-y-2">
+        <div className="mt-4 rounded-xl border border-border bg-surface-secondary p-3.5 space-y-2">
           <div className="flex items-center justify-between">
             <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider">Upload Queue</h4>
-            <span className="text-xs text-text-dim">{queuedFiles.length} file{queuedFiles.length > 1 ? 's' : ''}</span>
+            <span className="text-xs text-text-muted">{queuedFiles.length} file{queuedFiles.length > 1 ? 's' : ''}</span>
           </div>
           <div className="space-y-2">
             {queuedFiles.map((file, index) => (
-              <div key={`${file.name}-${index}`} className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-[#0A0A10] px-3 py-2 text-xs md:text-sm">
+              <div key={`${file.name}-${index}`} className="flex items-center justify-between rounded-lg border border-border bg-surface px-3 py-2 text-xs md:text-sm">
                 <div className="min-w-0">
                   <div className="truncate font-medium text-text-primary">{file.name}</div>
-                  <div className="text-xs text-text-dim">{formatFileSize(file.size)}</div>
+                  <div className="text-xs text-text-muted">{formatFileSize(file.size)}</div>
                 </div>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="sm"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleRemoveQueuedFile(index);
                   }}
                   aria-label={`Remove queued file ${file.name}`}
-                  className="ml-3 rounded-md p-1.5 text-text-muted hover:bg-accent-rose/10 hover:text-accent-rose transition-colors focus:outline-none focus:ring-2 focus:ring-accent-rose"
                   title="Remove file"
-                >
-                  <X className="w-4 h-4" aria-hidden="true" />
-                </button>
+                  leftIcon={<X className="w-4 h-4" />}
+                />
               </div>
             ))}
           </div>
@@ -221,15 +221,15 @@ export default function UploadCard({ onUploadFiles, isUploading, setIsUploading 
       {uploadedFileMeta.length > 0 && (
         <div className="mt-4 space-y-2">
           {uploadedFileMeta.map((item, index) => (
-            <div key={`${item.filename}-${index}`} className="bg-accent-emerald/10 border border-accent-emerald/30 rounded-xl p-3 flex items-center justify-between text-xs md:text-sm text-accent-emerald">
+            <div key={`${item.filename}-${index}`} className="bg-success/10 border border-success/20 rounded-xl p-3 flex items-center justify-between text-xs md:text-sm text-success">
               <div className="flex items-center space-x-2">
-                <CheckCircle2 className="w-4 h-4 text-accent-emerald shrink-0" aria-hidden="true" />
+                <CheckCircle2 className="w-4 h-4 text-success shrink-0" aria-hidden="true" />
                 <span className="font-semibold text-text-primary">{item.filename}</span>
                 <span className="text-text-muted hidden sm:inline font-mono">
                   ({item.record_count?.toLocaleString()} rows · {item.column_count} cols)
                 </span>
               </div>
-              <span className="text-accent-emerald font-medium bg-accent-emerald/20 px-2 py-0.5 rounded-full text-xs">
+              <span className="text-success font-medium bg-success/20 px-2 py-0.5 rounded-full text-xs">
                 Ready for Q&A
               </span>
             </div>

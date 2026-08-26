@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, Loader2, Database, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useThreeScene } from '../context/ThreeSceneContext';
+import { Button, Input } from '../components/ui';
 import toast from 'react-hot-toast';
 import PublicNavbar from '../components/Navbar/PublicNavbar';
 
@@ -10,7 +10,6 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
-  const { _isReducedMotion } = useThreeScene();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -96,77 +95,56 @@ export default function Login() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[var(--bg-deep)] text-[var(--text-primary)] flex flex-col selection:bg-[var(--accent-primary)]/30 selection:text-[var(--accent-primary-glow)] relative">
+    <div className="min-h-screen bg-background text-text-primary flex flex-col selection:bg-primary/30 selection:text-primary relative">
       <PublicNavbar />
-
-      {/* Global 3D scene is rendered by App - no need for local background */}
 
       <main className="flex-1 flex items-center justify-center px-4 py-28 relative z-10">
         <div className="w-full max-w-md">
           {/* Header */}
           <div className="text-center mb-8 relative animate-fade-in-up">
             <Link to="/" className="inline-flex items-center space-x-2.5 mb-6 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center text-white shadow-[var(--shadow-glow-sm)] group-hover:shadow-[var(--shadow-glow)] transition-all duration-200">
+              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-sm group-hover:shadow-md transition-all duration-200">
                 <Database className="w-5 h-5" aria-hidden="true" />
               </div>
-              <span className="text-xl font-bold text-[var(--text-primary)] tracking-tight">DATA_AGENT</span>
+              <span className="text-xl font-bold text-text-primary tracking-tight">DATA_AGENT</span>
             </Link>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-primary)] tracking-tight mb-2">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight mb-2">
               Welcome back
             </h1>
-            <p className="text-xs sm:text-sm text-[var(--text-secondary)]">
+            <p className="text-xs sm:text-sm text-text-secondary">
               Sign in to access your dataset workstation
             </p>
             
             {/* Floating accent elements */}
             <div className="absolute inset-0 -z-10 pointer-events-none">
-              <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-[var(--accent-primary)]/5 blur-xl" />
-              <div className="absolute bottom-0 left-0 w-20 h-20 rounded-full bg-[var(--accent-secondary)]/5 blur-xl" />
+              <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
+              <div className="absolute bottom-0 left-0 w-20 h-20 rounded-full bg-primary/5 blur-xl" />
             </div>
           </div>
 
-          {/* Form Card - Glass panel floating in the universe */}
-          <div className="bg-[var(--bg-glass)] backdrop-blur-xl border border-[var(--border-default)] rounded-2xl p-6 sm:p-8 shadow-[var(--shadow-glass)] relative overflow-hidden animate-fade-in-up" style={{ transitionDelay: '100ms' }}>
-            {/* Subtle animated border */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent-primary)]/10 via-transparent to-[var(--accent-secondary)]/10 opacity-50 animate-pulse" />
-            
+          {/* Form Card */}
+          <div className="card-elevated relative overflow-hidden animate-fade-in-up" style={{ transitionDelay: '100ms' }}>
             <form onSubmit={handleSubmit} noValidate className="space-y-5 relative z-10">
-              <div>
-                <label htmlFor="email" className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <input
-                    ref={emailRef}
-                    id="email"
-                    type="email"
-                    autoComplete="email"
-                    value={email}
-                    onChange={(e) => handleChange('email', e.target.value)}
-                    onBlur={(e) => handleBlur('email', e.target.value)}
-                    disabled={isLoading}
-                    className={`input-dark ${
-                      errors.email && touched.email ? 'border-[var(--accent-hot)]/70 focus:border-[var(--accent-hot)]' : ''
-                    }`}
-                    placeholder="you@company.com"
-                    aria-invalid={errors.email && touched.email ? 'true' : 'false'}
-                  />
-                </div>
-                {errors.email && touched.email && (
-                  <p className="mt-1.5 text-xs text-[var(--accent-hot)]" role="alert">
-                    {errors.email}
-                  </p>
-                )}
-              </div>
+              <Input
+                ref={emailRef}
+                id="email"
+                label="Email Address"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => handleChange('email', e.target.value)}
+                onBlur={(e) => handleBlur('email', e.target.value)}
+                disabled={isLoading}
+                error={errors.email && touched.email ? errors.email : undefined}
+                placeholder="you@company.com"
+              />
 
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label htmlFor="password" className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
-                    Password
-                  </label>
-                </div>
+                <label htmlFor="password" className="label">
+                  Password
+                </label>
                 <div className="relative">
-                  <input
+                  <Input
                     ref={passwordRef}
                     id="password"
                     type={showPassword ? 'text' : 'password'}
@@ -175,53 +153,39 @@ export default function Login() {
                     onChange={(e) => handleChange('password', e.target.value)}
                     onBlur={(e) => handleBlur('password', e.target.value)}
                     disabled={isLoading}
-                    className={`input-dark pr-11 ${
-                      errors.password && touched.password ? 'border-[var(--accent-hot)]/70 focus:border-[var(--accent-hot)]' : ''
-                    }`}
+                    error={errors.password && touched.password ? errors.password : undefined}
                     placeholder="••••••••"
-                    aria-invalid={errors.password && touched.password ? 'true' : 'false'}
+                    rightElement={
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary p-1 focus:outline-none"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    }
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)] p-1 focus:outline-none"
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
                 </div>
-                {errors.password && touched.password && (
-                  <p className="mt-1.5 text-xs text-[var(--accent-hot)]" role="alert">
-                    {errors.password}
-                  </p>
-                )}
               </div>
 
-              <button
+              <Button
                 type="submit"
                 disabled={isLoading}
-                className="btn-primary w-full py-3 text-sm font-semibold rounded-xl flex items-center justify-center space-x-2"
+                className="w-full py-3 text-sm font-semibold rounded-xl flex items-center justify-center space-x-2"
+                rightIcon={<ArrowRight className="w-4 h-4" />}
+                loading={isLoading}
               >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" aria-hidden="true" />
-                    <span>Signing in...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Sign In</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
+                <span>Sign In</span>
+              </Button>
             </form>
 
             <div className="mt-6 text-center relative z-10">
-              <p className="text-xs text-[var(--text-secondary)]">
+              <p className="text-xs text-text-secondary">
                 Don't have an account?{' '}
                 <Link
                   to="/register"
-                  className="font-semibold text-[var(--accent-primary)] hover:text-[var(--accent-primary-glow)] transition-colors"
+                  className="font-semibold text-primary hover:text-primary-hover transition-colors"
                 >
                   Create one free
                 </Link>
@@ -229,27 +193,28 @@ export default function Login() {
             </div>
 
             {/* Demo Helper Card */}
-            <div className="mt-6 pt-5 border-t border-[var(--border-subtle)] relative z-10">
+            <div className="mt-6 pt-5 border-t border-border relative z-10">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-semibold text-[var(--text-dim)] uppercase tracking-wider">Quick Demo Access</span>
-                <button
+                <span className="text-[11px] font-semibold text-text-muted uppercase tracking-wider">Quick Demo Access</span>
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="sm"
                   onClick={fillDemo}
-                  className="text-[11px] font-medium text-[var(--accent-primary)] hover:text-[var(--accent-primary-glow)] underline"
                 >
                   Fill credentials
-                </button>
+                </Button>
               </div>
-              <div className="bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-lg p-2.5 text-xs text-[var(--text-muted)] font-mono-tight space-y-1">
-                <div>Email: <span className="text-[var(--text-primary)]">demo@insightflow.io</span></div>
-                <div>Pass: <span className="text-[var(--text-primary)]">demo123456</span></div>
+              <div className="card px-3 py-2.5 text-xs text-text-muted font-mono-tight space-y-1">
+                <div>Email: <span className="text-text-primary">demo@insightflow.io</span></div>
+                <div>Pass: <span className="text-text-primary">demo123456</span></div>
               </div>
             </div>
           </div>
         </div>
       </main>
 
-      <footer className="py-6 px-4 border-t border-[var(--border-subtle)] text-center text-xs text-[var(--text-dim)] relative z-10">
+      <footer className="py-6 px-4 border-t border-border text-center text-xs text-text-muted relative z-10">
         © 2026 DATA_AGENT. All rights reserved.
       </footer>
     </div>

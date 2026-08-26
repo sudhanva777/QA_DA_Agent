@@ -163,7 +163,29 @@ export const api = {
       dataset_name: datasetName,
     }, {
       responseType: 'blob',
+      // Custom validateStatus to not throw on error status codes
+      // so we can read the error blob and parse it
+      validateStatus: (status) => status < 500,
     });
+    
+    // Check if response is an error (non-2xx)
+    if (response.status < 200 || response.status >= 300) {
+      // Parse error blob as JSON
+      let errorDetail = 'Failed to export PDF';
+      if (response.data instanceof Blob) {
+        try {
+          const text = await response.data.text();
+          const errorData = JSON.parse(text);
+          errorDetail = errorData.detail || errorData.error || errorDetail;
+        } catch {
+          errorDetail = `Server error: ${response.status}`;
+        }
+      }
+      const error = new Error(errorDetail);
+      error.response = { data: { detail: errorDetail }, status: response.status };
+      throw error;
+    }
+    
     return response.data;
   },
 };

@@ -1,11 +1,10 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { useThreeScene } from '../../context/ThreeSceneContext';
 import { CheckCircle2 } from 'lucide-react';
 
 const FEATURE_CATEGORIES = [
   {
     category: 'Analysis Engine',
-    color: '#6366F1',
+    color: '#2563EB',
     icon: 'Brain',
     features: [
       { title: 'Natural Language Queries', desc: 'Ask questions in plain English. Zero SQL needed.', badge: 'NLP' },
@@ -16,7 +15,7 @@ const FEATURE_CATEGORIES = [
   },
   {
     category: 'Visualization & Data',
-    color: '#06B6D4',
+    color: '#3B82F6',
     icon: 'BarChart3',
     features: [
       { title: 'Intelligent Auto-Charts', desc: 'Bar, line, area, pie, scatter, heatmap auto-selection.', badge: 'Charts' },
@@ -27,7 +26,7 @@ const FEATURE_CATEGORIES = [
   },
   {
     category: 'Security & Export',
-    color: '#10B981',
+    color: '#16A34A',
     icon: 'Shield',
     features: [
       { title: 'Hardened Sandbox', desc: 'Blocked imports, syscalls, 10s timeout.', badge: 'Secure' },
@@ -39,7 +38,6 @@ const FEATURE_CATEGORIES = [
 ];
 
 export default function Features({ features: legacyFeatures }) {
-  const { _isReducedMotion } = useThreeScene();
   const containerRef = useRef(null);
   const [visibleCards, setVisibleCards] = useState(new Set());
 
@@ -72,28 +70,28 @@ export default function Features({ features: legacyFeatures }) {
   };
 
   return (
-    <section className="relative py-32 lg:py-48 px-4 sm:px-6 lg:px-8">
+    <section className="relative py-24 lg:py-32 px-4 sm:px-6 lg:px-8">
       <div className="absolute inset-0 -z-10 pointer-events-none">
-        <div className="absolute top-1/2 left-1/4 w-[500px] h-[500px] bg-[var(--accent-secondary)]/3 rounded-full blur-[150px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[var(--accent-tertiary)]/3 rounded-full blur-[150px]" />
-        <div className="absolute top-1/2 right-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-[var(--accent-primary)]/3 rounded-full blur-[120px]" />
+        <div className="absolute top-1/2 left-1/4 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[150px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-success/5 rounded-full blur-[150px]" />
+        <div className="absolute top-1/2 right-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-primary/5 rounded-full blur-[120px]" />
       </div>
 
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-20 relative z-10 animate-fade-in-up">
-          <span className="text-xs font-bold uppercase tracking-widest text-[var(--accent-secondary)] bg-[var(--accent-secondary)]/10 border border-[var(--accent-secondary)]/20 px-3 py-1 rounded-full">
+          <span className="text-xs font-bold uppercase tracking-widest text-primary bg-primary/10 border border-primary/20 px-3 py-1 rounded-full">
             Key Capabilities
           </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-[var(--text-primary)] tracking-tight mt-4 font-display">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-text-primary tracking-tight mt-4 font-display">
             Engineered for Precision & Security
           </h2>
-          <p className="text-[var(--text-secondary)] text-sm sm:text-base mt-4 max-w-xl mx-auto">
+          <p className="text-text-secondary text-sm sm:text-base mt-4 max-w-xl mx-auto">
             Built for technical teams, analysts, and operators who require verifiable, deterministic data analysis.
           </p>
         </div>
 
-        {/* Feature Categories - Floating in Space */}
+        {/* Feature Categories */}
         <div ref={containerRef} className="relative z-10">
           {FEATURE_CATEGORIES.map((category, catIndex) => {
             const Icon = IconComponents[category.icon];
@@ -105,16 +103,17 @@ export default function Features({ features: legacyFeatures }) {
                     <Icon />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-[var(--text-primary)]">{category.category}</h3>
-                    <p className="text-sm text-[var(--text-muted)]">Core capabilities in this domain</p>
+                    <h3 className="text-2xl font-bold text-text-primary">{category.category}</h3>
+                    <p className="text-sm text-text-muted">Core capabilities in this domain</p>
                   </div>
                 </div>
 
-                {/* Feature Cards - Floating Grid */}
+                {/* Feature Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {category.features.map((feature, featIndex) => {
                     const cardKey = `${catIndex}-${featIndex}`;
-                    const isVisible = visibleCards.has(parseInt(cardKey.replace('-', ''), 10)) || visibleCards.has(catIndex * 10 + featIndex);
+                    const numericKey = catIndex * 10 + featIndex;
+                    const isVisible = visibleCards.has(numericKey);
                     
                     return (
                       <div
@@ -136,16 +135,16 @@ export default function Features({ features: legacyFeatures }) {
                           </div>
 
                           {/* Title & Description */}
-                          <h4 className="text-base font-bold text-[var(--text-primary)] mb-2 group-hover:text-[${category.color}] transition-colors">
+                          <h4 className="text-base font-bold text-text-primary mb-2 group-hover:text-[${category.color}] transition-colors">
                             {feature.title}
                           </h4>
-                          <p className="text-xs text-[var(--text-secondary)] leading-relaxed flex-1">
+                          <p className="text-xs text-text-secondary leading-relaxed flex-1">
                             {feature.desc}
                           </p>
 
                           {/* Hover indicator */}
-                          <div className="mt-4 pt-4 border-t border-[var(--border-subtle)] flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span className="text-xs text-[var(--text-muted)]">Explore</span>
+                          <div className="mt-4 pt-4 border-t border-border flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span className="text-xs text-text-muted">Explore</span>
                             <CheckCircle2 className={`w-4 h-4 text-[${category.color}]`} />
                           </div>
                         </div>
@@ -174,8 +173,8 @@ export default function Features({ features: legacyFeatures }) {
 
           {/* Legacy features support */}
           {legacyFeatures && legacyFeatures.length > 0 && (
-            <div className="pt-16 border-t border-[var(--border-subtle)]">
-              <h3 className="text-lg font-bold text-[var(--text-primary)] mb-8 text-center">Additional Capabilities</h3>
+            <div className="pt-16 border-t border-border">
+              <h3 className="text-lg font-bold text-text-primary mb-8 text-center">Additional Capabilities</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {legacyFeatures.map((feature, idx) => {
                   const Icon = feature.icon;
@@ -186,13 +185,13 @@ export default function Features({ features: legacyFeatures }) {
                       style={{ transitionDelay: `${idx * 80}ms` }}
                     >
                       <div className="flex items-center justify-between mb-4">
-                        <div className="w-10 h-10 rounded-xl bg-[var(--bg-base)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--accent-primary)] group-hover:bg-[var(--accent-primary)] group-hover:text-white transition-all duration-200">
+                        <div className="w-10 h-10 rounded-xl bg-surface-secondary border border-border flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-200">
                           <Icon className="w-5 h-5" />
                         </div>
-                        <span className="badge-dark text-[10px]">{feature.badge}</span>
+                        <span className="text-[10px] font-semibold text-text-muted bg-surface-secondary border border-border px-2 py-0.5 rounded-full">{feature.badge}</span>
                       </div>
-                      <h4 className="text-base font-bold text-[var(--text-primary)] mb-2">{feature.title}</h4>
-                      <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{feature.description}</p>
+                      <h4 className="text-base font-bold text-text-primary mb-2">{feature.title}</h4>
+                      <p className="text-xs text-text-secondary leading-relaxed">{feature.description}</p>
                     </div>
                   );
                 })}

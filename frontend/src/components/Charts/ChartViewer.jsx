@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Download, Maximize2, BarChart3, Image as ImageIcon, FileText } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import Button from '../ui/Button';
 import {
   ResponsiveContainer,
   BarChart,
@@ -22,10 +23,10 @@ import {
   Legend,
 } from 'recharts';
 
-const CHART_COLORS = ['#6366F1', '#8B5CF6', '#06B6D4', '#3B82F6', '#10B981', '#F59E0B', '#EC4899', '#A855F7'];
+const CHART_COLORS = ['#2563EB', '#3B82F6', '#06B6D4', '#6366F1', '#16A34A', '#D97706', '#EC4899', '#8B5CF6'];
 
 // Heatmap color scale - blue to red for correlations
-const HEATMAP_COLORS = ['#1E1B4B', '#4338CA', '#6366F1', '#38BDF8', '#FDE047', '#F97316', '#EF4444', '#991B1B'];
+const HEATMAP_COLORS = ['#1E3A8A', '#2563EB', '#3B82F6', '#38BDF8', '#FDE047', '#F97316', '#DC2626', '#991B1B'];
 
 function getHeatmapColor(value) {
   // value is between -1 and 1 for correlations
@@ -69,7 +70,7 @@ function HeatmapChart({ data, _config }) {
                 textAnchor="end"
                 dominantBaseline="middle"
                 fontSize="11"
-                fill="#A1A1AA"
+                fill="#64748B"
                 className="axis-label"
               >
                 {cat.length > 12 ? cat.substring(0, 12) + '…' : cat}
@@ -85,7 +86,7 @@ function HeatmapChart({ data, _config }) {
                 textAnchor="end"
                 dominantBaseline="hanging"
                 fontSize="11"
-                fill="#A1A1AA"
+                fill="#64748B"
                 transform={`rotate(-45, ${i * 40 + 20}, ${yCategories.length * 30 + 35})`}
                 className="axis-label"
               >
@@ -109,7 +110,7 @@ function HeatmapChart({ data, _config }) {
                   rx={4}
                   ry={4}
                   opacity={0.9}
-                  stroke="rgba(255, 255, 255, 0.06)"
+                  stroke="#E2E8F0"
                   strokeWidth="1"
                 />
               );
@@ -127,7 +128,7 @@ function HeatmapChart({ data, _config }) {
                   textAnchor="middle"
                   dominantBaseline="middle"
                   fontSize="10"
-                  fill="#F5F5F7"
+                  fill="#111827"
                   fontWeight="600"
                   className="font-mono"
                 >
@@ -140,8 +141,8 @@ function HeatmapChart({ data, _config }) {
           {/* Color legend */}
           <g transform="translate(60, 280)">
             <rect x="0" y="0" width="200" height="10" fill="url(#heatmapLegend)" rx="3" />
-            <text x="0" y="-4" fontSize="9" fill="#71717A">-1.0</text>
-            <text x="200" y="-4" fontSize="9" fill="#71717A" textAnchor="end">1.0</text>
+            <text x="0" y="-4" fontSize="9" fill="#94A3B8">-1.0</text>
+            <text x="200" y="-4" fontSize="9" fill="#94A3B8" textAnchor="end">1.0</text>
           </g>
         </svg>
       </div>
@@ -149,7 +150,7 @@ function HeatmapChart({ data, _config }) {
   );
 }
 
-export default function ChartViewer({ chartUrl, tableData, chartData, title = 'Generated Visualization' }) {
+export default function ChartViewer({ chartUrl, tableData, chartData, title = 'Generated Visualization', message }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [viewMode, setViewMode] = useState('both'); // 'static' | 'interactive' | 'both'
 
@@ -195,19 +196,17 @@ export default function ChartViewer({ chartUrl, tableData, chartData, title = 'G
   };
 
   const handleExportPdf = async () => {
-    const messageCard = document.querySelector('[data-message-card]');
-    if (!messageCard) return;
-
-    const rawMessage = messageCard.getAttribute('data-message');
-    if (!rawMessage) return;
+    if (!message) {
+      toast.error('Analysis data not available for PDF export');
+      return;
+    }
 
     try {
-      const messageData = JSON.parse(rawMessage);
-      const blob = await api.exportPdf(messageData, messageData.datasetId);
+      const datasetName = message.datasetId || message.dataset_id || 'analysis';
+      const blob = await api.exportPdf(message, datasetName);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      const datasetName = messageData.datasetId || 'analysis';
       const safeName = datasetName.replace(/[^a-zA-Z0-9\-_]/g, '_');
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       link.download = `analysis_report_${safeName}_${timestamp}.pdf`;
@@ -224,8 +223,8 @@ export default function ChartViewer({ chartUrl, tableData, chartData, title = 'G
 
   if (!fullChartUrl && !rechartsData) {
     return (
-      <div className="p-8 text-center bg-[#12121A] border border-white/[0.08] rounded-xl text-text-muted text-xs md:text-sm">
-        <BarChart3 className="w-8 h-8 text-text-dim mx-auto mb-2" aria-hidden="true" />
+      <div className="p-8 text-center card text-text-muted text-xs md:text-sm">
+        <BarChart3 className="w-8 h-8 text-border mx-auto mb-2" aria-hidden="true" />
         <span>No visualization chart required or generated for this query.</span>
       </div>
     );
@@ -235,12 +234,12 @@ export default function ChartViewer({ chartUrl, tableData, chartData, title = 'G
   const showInteractive = rechartsData && (viewMode === 'interactive' || viewMode === 'both');
 
   const tooltipStyle = {
-    backgroundColor: '#12121A',
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#E2E8F0',
     borderRadius: '10px',
-    color: '#F5F5F7',
+    color: '#111827',
     fontSize: '12px',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+    boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1)',
   };
 
   const renderRechartsChart = () => {
@@ -268,29 +267,29 @@ export default function ChartViewer({ chartUrl, tableData, chartData, title = 'G
           <ResponsiveContainer width="100%" height="100%">
             {chartType === 'line' ? (
               <LineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.08)" />
-                <XAxis dataKey="name" stroke="#71717A" fontSize={11} angle={-20} textAnchor="end" />
-                <YAxis stroke="#71717A" fontSize={11} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+                <XAxis dataKey="name" stroke="#94A3B8" fontSize={11} angle={-20} textAnchor="end" />
+                <YAxis stroke="#94A3B8" fontSize={11} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend />
-                <Line type="monotone" dataKey="value" stroke="#6366F1" strokeWidth={2.5} dot={{ r: 4, fill: '#6366F1' }} name={config.yAxisLabel || 'Value'} />
+                <Line type="monotone" dataKey="value" stroke="#2563EB" strokeWidth={2.5} dot={{ r: 4, fill: '#2563EB' }} name={config.yAxisLabel || 'Value'} />
                 {seriesKeys.slice(1).map((key, idx) => (
                   <Line key={key} type="monotone" dataKey={key} stroke={CHART_COLORS[(idx + 1) % CHART_COLORS.length]} strokeWidth={2} dot={{ r: 3 }} />
                 ))}
               </LineChart>
             ) : chartType === 'area' ? (
               <AreaChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.08)" />
-                <XAxis dataKey="name" stroke="#71717A" fontSize={11} angle={-20} textAnchor="end" />
-                <YAxis stroke="#71717A" fontSize={11} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+                <XAxis dataKey="name" stroke="#94A3B8" fontSize={11} angle={-20} textAnchor="end" />
+                <YAxis stroke="#94A3B8" fontSize={11} />
                 <Tooltip contentStyle={tooltipStyle} />
-                <Area type="monotone" dataKey="value" stroke="#6366F1" fill="#6366F1" fillOpacity={0.25} strokeWidth={2} />
+                <Area type="monotone" dataKey="value" stroke="#2563EB" fill="#2563EB" fillOpacity={0.25} strokeWidth={2} />
               </AreaChart>
             ) : chartType === 'pie' ? (
               <PieChart>
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend />
-                <Pie data={data} dataKey="value" nameKey="name" innerRadius={40} outerRadius={120} fill="#6366F1" label>
+                <Pie data={data} dataKey="value" nameKey="name" innerRadius={40} outerRadius={120} fill="#2563EB" label>
                   {data.map((entry, index) => (
                     <Cell key={`${entry.name}-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                   ))}
@@ -298,21 +297,21 @@ export default function ChartViewer({ chartUrl, tableData, chartData, title = 'G
               </PieChart>
             ) : chartType === 'scatter' ? (
               <ScatterChart margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.08)" />
-                <XAxis dataKey="x" stroke="#71717A" fontSize={11} name={config.xAxisLabel || 'X'} />
-                <YAxis dataKey="y" stroke="#71717A" fontSize={11} name={config.yAxisLabel || 'Y'} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+                <XAxis dataKey="x" stroke="#94A3B8" fontSize={11} name={config.xAxisLabel || 'X'} />
+                <YAxis dataKey="y" stroke="#94A3B8" fontSize={11} name={config.yAxisLabel || 'Y'} />
                 <Tooltip contentStyle={tooltipStyle} />
-                <Scatter data={data} fill="#6366F1" />
+                <Scatter data={data} fill="#2563EB" />
               </ScatterChart>
             ) : (
               /* Default: bar chart */
               <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.08)" />
-                <XAxis dataKey="name" stroke="#71717A" fontSize={11} angle={-20} textAnchor="end" />
-                <YAxis stroke="#71717A" fontSize={11} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+                <XAxis dataKey="name" stroke="#94A3B8" fontSize={11} angle={-20} textAnchor="end" />
+                <YAxis stroke="#94A3B8" fontSize={11} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend />
-                <Bar dataKey="value" fill="#6366F1" radius={[4, 4, 0, 0]} name={config.yAxisLabel || 'Value'} />
+                <Bar dataKey="value" fill="#2563EB" radius={[4, 4, 0, 0]} name={config.yAxisLabel || 'Value'} />
                 {seriesKeys.slice(1).map((key, idx) => (
                   <Bar key={key} dataKey={key} fill={CHART_COLORS[(idx + 1) % CHART_COLORS.length]} radius={[4, 4, 0, 0]} />
                 ))}
@@ -325,36 +324,36 @@ export default function ChartViewer({ chartUrl, tableData, chartData, title = 'G
   };
 
   return (
-    <div className={`bg-[#0E0E16] border border-white/10 rounded-xl overflow-hidden shadow-dark-card ${isFullscreen ? 'fixed inset-4 z-50 shadow-2xl flex flex-col bg-[#0E0E16]/95 backdrop-blur-2xl' : ''}`}>
+    <div className={`card overflow-hidden shadow-sm ${isFullscreen ? 'fixed inset-4 z-50 shadow-2xl flex flex-col bg-white/95 backdrop-blur-2xl' : ''}`}>
       {/* Chart Header Toolbar */}
-      <div className="p-3.5 border-b border-white/[0.08] bg-[#12121A] flex items-center justify-between">
+      <div className="p-3.5 border-b border-border bg-surface-secondary flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <ImageIcon className="w-4 h-4 text-brand-400" aria-hidden="true" />
+          <ImageIcon className="w-4 h-4 text-primary" aria-hidden="true" />
           <span className="text-xs md:text-sm font-semibold text-text-primary">{title}</span>
         </div>
 
         <div className="flex items-center space-x-2">
           {/* View Mode Toggle */}
           {fullChartUrl && rechartsData && (
-            <div className="flex items-center bg-[#08080E] border border-white/10 rounded-lg overflow-hidden mr-1">
+            <div className="flex items-center bg-surface border border-border rounded-lg overflow-hidden mr-1">
               <button
                 type="button"
                 onClick={() => setViewMode('static')}
-                className={`px-2.5 py-1 text-xs font-medium transition-colors ${viewMode === 'static' ? 'bg-brand-500 text-white' : 'text-text-muted hover:text-text-primary'}`}
+                className={`px-2.5 py-1 text-xs font-medium transition-colors ${viewMode === 'static' ? 'bg-primary text-white' : 'text-text-muted hover:text-text-primary'}`}
               >
                 Static
               </button>
               <button
                 type="button"
                 onClick={() => setViewMode('interactive')}
-                className={`px-2.5 py-1 text-xs font-medium transition-colors border-x border-white/10 ${viewMode === 'interactive' ? 'bg-brand-500 text-white' : 'text-text-muted hover:text-text-primary'}`}
+                className={`px-2.5 py-1 text-xs font-medium transition-colors border-x border-border ${viewMode === 'interactive' ? 'bg-primary text-white' : 'text-text-muted hover:text-text-primary'}`}
               >
                 Interactive
               </button>
               <button
                 type="button"
                 onClick={() => setViewMode('both')}
-                className={`px-2.5 py-1 text-xs font-medium transition-colors ${viewMode === 'both' ? 'bg-brand-500 text-white' : 'text-text-muted hover:text-text-primary'}`}
+                className={`px-2.5 py-1 text-xs font-medium transition-colors ${viewMode === 'both' ? 'bg-primary text-white' : 'text-text-muted hover:text-text-primary'}`}
               >
                 Both
               </button>
@@ -362,47 +361,48 @@ export default function ChartViewer({ chartUrl, tableData, chartData, title = 'G
           )}
 
           {fullChartUrl && (
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={handleDownload}
               aria-label="Download chart image as PNG"
-              className="inline-flex items-center px-3 py-1.5 text-xs font-medium bg-[#12121A] hover:bg-[#181824] text-text-primary border border-white/10 rounded-lg shadow-xs transition-colors focus:outline-none focus:ring-1 focus:ring-brand-500"
+              leftIcon={<Download className="w-3.5 h-3.5" />}
             >
-              <Download className="w-3.5 h-3.5 mr-1.5 text-text-muted" aria-hidden="true" />
               PNG
-            </button>
+            </Button>
           )}
 
           {fullChartUrl && (
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handleExportPdf}
               aria-label="Export analysis as PDF report"
-              className="inline-flex items-center px-3 py-1.5 text-xs font-medium bg-brand-500/10 hover:bg-brand-500/20 text-brand-300 border border-brand-500/30 rounded-lg shadow-xs transition-colors focus:outline-none focus:ring-1 focus:ring-brand-500"
+              leftIcon={<FileText className="w-3.5 h-3.5" />}
             >
-              <FileText className="w-3.5 h-3.5 mr-1.5" aria-hidden="true" />
               PDF
-            </button>
+            </Button>
           )}
 
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => setIsFullscreen(!isFullscreen)}
             aria-label={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
-            className="p-1.5 text-text-muted hover:text-text-primary bg-[#12121A] hover:bg-[#181824] border border-white/10 rounded-lg transition-colors focus:outline-none focus:ring-1 focus:ring-brand-500"
-            title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
-          >
-            <Maximize2 className="w-3.5 h-3.5" aria-hidden="true" />
-          </button>
+            leftIcon={<Maximize2 className="w-3.5 h-3.5" />}
+          />
         </div>
       </div>
 
       {/* Chart Body */}
-      <div className={`p-4 bg-[#0A0A10] ${isFullscreen ? 'flex-1 overflow-auto' : ''}`}>
+      <div className={`p-4 bg-background ${isFullscreen ? 'flex-1 overflow-auto' : ''}`}>
         <div className={`flex ${viewMode === 'both' && showStatic && showInteractive ? 'flex-col space-y-4' : 'items-center justify-center'}`}>
           {showStatic && (
             <div className="flex items-center justify-center min-h-[280px]">
               <img
                 src={fullChartUrl}
                 alt="Data Analysis Chart Visualization"
-                className="max-h-[420px] w-auto object-contain rounded-xl border border-white/[0.08] shadow-dark-card"
+                className="max-h-[420px] w-auto object-contain rounded-xl border border-border shadow-sm"
               />
             </div>
           )}

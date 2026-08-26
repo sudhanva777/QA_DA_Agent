@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle2, Loader2, Circle, Sparkles } from 'lucide-react';
+import { Card } from '../ui';
 
 const STEPS = [
   { id: 1, text: 'Inspecting schema & sample context...' },
@@ -24,10 +25,10 @@ export default function SequentialLoader() {
   }, []);
 
   return (
-    <div className="bg-[#0E0E16]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-glass my-4 max-w-xl w-full">
-      <div className="flex items-center space-x-2.5 text-sm font-semibold text-text-primary mb-3.5 pb-3 border-b border-white/[0.08]">
-        <div className="w-6 h-6 rounded-lg bg-brand-500/10 border border-brand-500/30 flex items-center justify-center">
-          <Loader2 className="w-3.5 h-3.5 text-brand-400 animate-spin" aria-hidden="true" />
+    <Card className="max-w-xl w-full">
+      <div className="flex items-center space-x-2.5 text-sm font-semibold text-text-primary mb-3.5 pb-3 border-b border-border">
+        <div className="w-6 h-6 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+          <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" aria-hidden="true" />
         </div>
         <span>Analyzing dataset with pandas engine...</span>
       </div>
@@ -42,24 +43,24 @@ export default function SequentialLoader() {
               key={step.id}
               className={`flex items-center space-x-2.5 text-xs md:text-sm transition-all duration-200 ${
                 isDone
-                  ? 'text-accent-emerald font-medium'
+                  ? 'text-success font-medium'
                   : isCurrent
-                  ? 'text-brand-300 font-semibold'
-                  : 'text-text-dim font-normal'
+                  ? 'text-primary font-semibold'
+                  : 'text-text-muted font-normal'
               }`}
             >
               {isDone ? (
-                <CheckCircle2 className="w-4 h-4 text-accent-emerald shrink-0" aria-hidden="true" />
+                <CheckCircle2 className="w-4 h-4 text-success shrink-0" aria-hidden="true" />
               ) : isCurrent ? (
-                <Loader2 className="w-4 h-4 text-brand-400 animate-spin shrink-0" aria-hidden="true" />
+                <Loader2 className="w-4 h-4 text-primary animate-spin shrink-0" aria-hidden="true" />
               ) : (
-                <Circle className="w-4 h-4 text-text-dim/60 shrink-0" aria-hidden="true" />
+                <Circle className="w-4 h-4 text-text-muted/60 shrink-0" aria-hidden="true" />
               )}
               <span>{step.text}</span>
             </div>
           );
         })}
       </div>
-    </div>
+    </Card>
   );
 }

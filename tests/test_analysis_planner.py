@@ -147,7 +147,8 @@ FIRST 3 ROWS SAMPLE:
             create_analysis_plan("test", self.schema_summary, self.df)
             
             call_args = mock_client.chat.completions.create.call_args
-            self.assertEqual(call_args.kwargs["model"], "llama-3.3-70b-versatile")
+            from src.config import MODEL_NAME
+            self.assertEqual(call_args.kwargs["model"], MODEL_NAME)
             self.assertEqual(call_args.kwargs["temperature"], 0)
             self.assertEqual(call_args.kwargs["response_format"], {"type": "json_object"})
 

@@ -7,6 +7,7 @@ import CleaningModal from '../components/Cleaning/CleaningModal';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import { X, Upload } from 'lucide-react';
+import { Modal, Button } from '../components/ui';
 
 export default function Dashboard() {
   const [datasets, setDatasets] = useState([]);
@@ -30,7 +31,6 @@ export default function Dashboard() {
     checkHealth();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
 
   // Fetch dataset details when activeDataset changes
   useEffect(() => {
@@ -238,6 +238,7 @@ export default function Dashboard() {
       chart_data: null,
       generated_code: item.generated_code,
       latency_ms: item.latency_ms,
+      dataset_id: item.dataset_name,
       datasetId: item.dataset_name,
       status: item.status,
     };
@@ -250,7 +251,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050507] text-text-primary flex flex-col font-sans selection:bg-brand-500/30 selection:text-brand-200 relative">
+    <div className="min-h-screen bg-background text-text-primary flex flex-col font-sans selection:bg-primary/30 selection:text-primary relative">
       {/* Global 3D scene is rendered by App */}
       <Navbar
         activeDataset={activeDataset}
@@ -288,39 +289,24 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* Accessible Upload Dataset Modal Dialog */}
-      {showUploadModal && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="upload-modal-title"
-          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4"
-        >
-          <div className="bg-[#0E0E16] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-white/10 relative animate-in fade-in zoom-in-95 duration-150">
-            <button
-              type="button"
-              onClick={() => setShowUploadModal(false)}
-              aria-label="Close upload dialog"
-              className="absolute top-4 right-4 text-text-muted hover:text-text-primary p-1.5 rounded-lg hover:bg-white/[0.06] focus:outline-none focus:ring-2 focus:ring-brand-500"
-            >
-              <X className="w-5 h-5" aria-hidden="true" />
-            </button>
-
-            <div className="flex items-center space-x-2 text-text-primary font-bold text-lg mb-4">
-              <div className="w-8 h-8 rounded-lg bg-brand-500/10 border border-brand-500/30 flex items-center justify-center text-brand-400">
-                <Upload className="w-4 h-4" aria-hidden="true" />
-              </div>
-              <h2 id="upload-modal-title">Upload Dataset</h2>
-            </div>
-
-            <UploadCard
-              onUploadFiles={handleUploadFiles}
-              isUploading={isUploading}
-              setIsUploading={setIsUploading}
-            />
+      {/* Upload Dataset Modal Dialog */}
+      <Modal
+        isOpen={showUploadModal}
+        onClose={() => setShowUploadModal(false)}
+        title="Upload Dataset"
+        size="lg"
+      >
+        <div className="flex items-center space-x-2 text-text-primary font-bold text-lg mb-4">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+            <Upload className="w-4 h-4" aria-hidden="true" />
           </div>
         </div>
-      )}
+        <UploadCard
+          onUploadFiles={handleUploadFiles}
+          isUploading={isUploading}
+          setIsUploading={setIsUploading}
+        />
+      </Modal>
 
       <CleaningModal
         isOpen={showCleaningModal}
@@ -332,4 +318,3 @@ export default function Dashboard() {
     </div>
   );
 }
-

@@ -9,7 +9,7 @@ export default function ProtectedRoute({ children }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#050507] text-text-primary flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background text-text-primary flex items-center justify-center p-4">
         <SequentialLoader />
       </div>
     );
