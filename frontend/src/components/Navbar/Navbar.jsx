@@ -134,27 +134,41 @@ export default function Navbar({ activeDataset, isConnected, onToggleMobileSideb
           )}
         </div>
 
-        {/* User Profile Menu */}
+        {/* User Profile Menu & Logout */}
         {isAuthenticated && user && (
-          <div className="relative" ref={userMenuRef}>
+          <div className="flex items-center space-x-1.5">
             <Dropdown
               trigger={
                 <button
                   type="button"
-                  aria-expanded={userMenuOpen}
-                  aria-haspopup="true"
+                  aria-label="User Profile Menu"
                   className="flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-xs font-medium text-text-secondary hover:text-text-primary hover:bg-surface transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
                 >
                   <div className="w-7 h-7 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-bold text-xs">
                     {user.name ? user.name.charAt(0).toUpperCase() : <User className="w-3.5 h-3.5" />}
                   </div>
-                  <span className="hidden md:block max-w-[110px] truncate text-text-primary text-xs">{user.name || user.email}</span>
+                  <span className="hidden md:block max-w-[110px] truncate text-text-primary text-xs font-medium">{user.name || user.email}</span>
                   <ChevronDown className="w-3.5 h-3.5 text-text-muted" aria-hidden="true" />
                 </button>
               }
               items={userMenuItems}
               align="right"
             />
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              aria-label="Sign Out"
+              title="Sign Out"
+              className="p-1.5 rounded-lg text-text-muted hover:text-error hover:bg-error/10 transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-error ml-0.5"
+            >
+              {isLoggingOut ? (
+                <Loader2 className="w-4 h-4 animate-spin text-error" />
+              ) : (
+                <LogOut className="w-4 h-4" />
+              )}
+            </button>
           </div>
         )}
       </div>

@@ -33,7 +33,7 @@ export default function Dropdown({
       <div ref={triggerRef} onClick={() => setIsOpen(!isOpen)}>
         {trigger}
       </div>
-      {isOpen && createPortal(
+      {isOpen && (
         <div
           className={`absolute z-50 mt-2 w-48 ${alignClasses[align]} animate-in fade-in-0 zoom-in-95 duration-150`}
           role="menu"
@@ -42,8 +42,12 @@ export default function Dropdown({
             {items.map((item, index) => (
               <button
                 key={index}
+                type="button"
                 role="menuitem"
-                onClick={() => { item.onClick?.(); setIsOpen(false); }}
+                onClick={() => {
+                  setIsOpen(false);
+                  if (item.onClick) item.onClick();
+                }}
                 disabled={item.disabled}
                 className={`w-full px-3 py-2 text-sm text-left flex items-center space-x-2 transition-colors ${
                   item.disabled
@@ -60,8 +64,7 @@ export default function Dropdown({
               item.divider && <div key={`divider-${index}`} className="border-t border-border my-1" />
             )}
           </div>
-        </div>,
-        document.body
+        </div>
       )}
     </div>
   );

@@ -1,106 +1,99 @@
 @echo off
 setlocal enabledelayedexpansion
+title QA Data Analysis Agent - Launcher
 cd /d "%~dp0"
 
-set "BACKEND_HOST=0.0.0.0"
-set "BACKEND_PORT=8000"
-set "FRONTEND_HOST=0.0.0.0"
-set "FRONTEND_PORT=5174"
+echo ============================================================
+echo           QA Data Analysis Agent - Auto Launcher
+echo ============================================================
+echo.
 
+:: 1. Verify Python Installation
 python --version >nul 2>&1
 if errorlevel 1 (
     echo [ERROR] Python was not found on your system PATH.
+    echo Please install Python 3.10+ and add it to your PATH.
     goto :fail
 )
 
-if not exist "venv\" (
-    echo [INFO] Creating virtual environment in venv\...
-    python -m venv venv
+:: 2. Detect / Activate Virtual Environment
+if exist ".venv\Scripts\activate.bat" (
+    set "ACTIVATE_CMD=.venv\Scripts\activate.bat"
+) else if exist "venv\Scripts\activate.bat" (
+    set "ACTIVATE_CMD=venv\Scripts\activate.bat"
+) else (
+    echo [INFO] Creating Python virtual environment in .venv\...
+    python -m venv .venv
     if errorlevel 1 goto :fail
+    set "ACTIVATE_CMD=.venv\Scripts\activate.bat"
 )
 
-call venv\Scripts\activate.bat
-if errorlevel 1 goto :fail
+call "%ACTIVATE_CMD%"
+if errorlevel 1 (
+    echo [ERROR] Failed to activate virtual environment.
+    goto :fail
+)
 
-python -m pip install -q -r requirements.txt
-if errorlevel 1 goto :fail
-
+:: 3. Check .env configuration
 if not exist ".env" (
     if exist ".env.example" (
         copy ".env.example" ".env" >nul
-        echo [INFO] Created .env from .env.example.
+        echo [INFO] Created .env configuration from .env.example.
     )
 )
 
+:: 4. Verify Node / npm Installation
 where npm >nul 2>&1
 if errorlevel 1 (
-    echo [ERROR] npm was not found on your system PATH.
+    echo [ERROR] Node.js / npm was not found on your system PATH.
+    echo Please install Node.js (https://nodejs.org) to run the frontend.
     goto :fail
 )
 
-cd frontend
-if not exist "node_modules\" (
-    echo [INFO] Installing frontend dependencies...
-    npm install
-    if errorlevel 1 goto :fail
+:: 5. Install frontend dependencies if missing
+if not exist "frontend\node_modules\" (
+    echo [INFO] Installing frontend npm packages...
+    cd frontend
+    call npm install
+    if errorlevel 1 (
+        cd ..
+        goto :fail
+    )
+    cd ..
 )
-cd ..
+
+echo.
+echo [1/3] Starting FastAPI Backend on http://localhost:8000 ...
+start "QA Agent - Backend (FastAPI)" cmd /k "cd /d "%~dp0" && call "%ACTIVATE_CMD%" && uvicorn api:app --host 127.0.0.1 --port 8000 --reload"
+
+echo [2/3] Starting React Frontend on http://localhost:5173 ...
+start "QA Agent - Frontend (Vite)" cmd /k "cd /d "%~dp0\frontend" && npm run dev"
+
+echo [3/3] Opening web browser...
+timeout /t 3 /nobreak >nul
+start http://localhost:5173
 
 echo.
 echo ============================================================
-echo           CSV / Data Q&A Agent Launcher
+echo  [SUCCESS] QA Data Analysis Agent is running!
 echo ============================================================
 echo.
-echo Select application mode:
-echo   [1] Launch FastAPI backend only
-echo   [2] Launch React frontend only
-echo   [3] Launch both backend and frontend
-echo   [4] Launch CLI REPL only
-echo   [5] Exit
+echo  - Frontend Web UI : http://localhost:5173
+echo  - Backend API Docs: http://localhost:8000/docs
+echo  - Backend Health  : http://localhost:8000/api/health
 echo.
-choice /c 12345 /n /m "Press 1, 2, 3, 4, or 5: "
-
-if errorlevel 5 goto :done
-if errorlevel 4 goto :launch_cli
-if errorlevel 3 goto :launch_both
-if errorlevel 2 goto :launch_frontend
-if errorlevel 1 goto :launch_backend
-
-goto :fail
-
-:launch_backend
+echo  Keep the opened terminal windows running while using the app.
+echo  To stop the application, close the backend and frontend windows.
+echo ============================================================
 echo.
-echo [INFO] Starting FastAPI backend on http://%BACKEND_HOST%:%BACKEND_PORT%
-echo.
-uvicorn api:app --host %BACKEND_HOST% --port %BACKEND_PORT%
-goto :done
-
-:launch_cli
-echo.
-echo [INFO] Launching CLI REPL only
-echo.
-python main.py --file data/sales_data.csv
-goto :done
-
-:launch_frontend
-echo.
-echo [INFO] Starting React frontend on http://%FRONTEND_HOST%:%FRONTEND_PORT%
-echo.
-cd frontend
-npm run dev -- --host %FRONTEND_HOST% --port %FRONTEND_PORT%
-goto :done
-
-:launch_both
-start "Backend" cmd /k "cd /d %~dp0 && call venv\Scripts\activate.bat && uvicorn api:app --host %BACKEND_HOST% --port %BACKEND_PORT%"
-start "Frontend" cmd /k "cd /d %~dp0\frontend && npm run dev -- --host %FRONTEND_HOST% --port %FRONTEND_PORT%"
-echo [INFO] Backend and frontend started in separate terminals.
-echo [INFO] Open http://%FRONTEND_HOST%:%FRONTEND_PORT% for the React UI.
+pause
 goto :done
 
 :fail
 echo.
-echo [LAUNCHER ERROR] Process stopped due to error(s) listed above.
-:done
+echo [LAUNCHER ERROR] Could not complete launch. Please review errors above.
 echo.
 pause
+
+:done
 endlocal
